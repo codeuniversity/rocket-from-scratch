@@ -1,7 +1,7 @@
 #include <Servo.h>
 
-Servo inner;
-Servo outer;
+Servo innerServo;
+Servo outerServo;
 
 //int INNER_MIN = 0;
 //int INNER_MAX = 45;
@@ -17,23 +17,40 @@ int OUTER_MIN = OUTER_MID - 20;
 int OUTER_MAX = OUTER_MID + 20;
 
 void setup() {
-  inner.attach(3);
-  outer.attach(9);
+  innerServo.attach(3);
+  outerServo.attach(9);
 
-  outer.write(getAngle(0.5, OUTER_MIN, OUTER_MAX));
-  inner.write(getAngle(0.5, INNER_MIN, INNER_MAX));
+  setCoordinates(50, 50);
+  delay(1000);
 }
 
-void loop() {
-  inner.write(getAngle(0.0, INNER_MIN, INNER_MAX));
-  delay(1000);
-  outer.write(getAngle(0.0, OUTER_MIN, OUTER_MAX));
-  delay(1000);
-  inner.write(getAngle(1.0, INNER_MIN, INNER_MAX));
-  delay(1000);
-  outer.write(getAngle(1.0, OUTER_MIN, OUTER_MAX));
-  delay(1000);
+void loop() { 
+  setCoordinates(0, 0);
+  delay(150);
+  setCoordinates(100, 0);
+  delay(150);
+  setCoordinates(100, 100);
+  delay(150);
+  setCoordinates(0, 100);
+  delay(150);
 }
+
+void setCoordinates(int inner, int outer){
+  float percentInner = (float)inner / 100.0;
+  float percentOuter = (float)outer / 100.0;
+
+  innerServo.write(getAngleInner(percentInner));
+  outerServo.write(getAngleOuter(percentOuter));
+}
+
+int getAngleInner(float percent) {
+  return getAngle(percent, INNER_MIN, INNER_MAX);
+}
+
+int getAngleOuter(float percent) {
+  return getAngle(percent, OUTER_MIN, OUTER_MAX);
+}
+   
 
 int getAngle(float percent, int minAngle, int maxAngle) {
   int span = maxAngle - minAngle;
