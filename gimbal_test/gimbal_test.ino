@@ -3,13 +3,9 @@
 Servo innerServo;
 Servo outerServo;
 
-//int INNER_MIN = 0;
-//int INNER_MAX = 45;
-//int OUTER_MIN = 80;
-//int OUTER_MAX = 180;
-
-int INNER_MID = 22;
-int OUTER_MID = 130;
+//calibration
+int INNER_MID = 40;
+int OUTER_MID = 134;
 
 int INNER_MIN = INNER_MID - 20;
 int INNER_MAX = INNER_MID + 20;
