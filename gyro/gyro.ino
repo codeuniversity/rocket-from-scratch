@@ -31,6 +31,15 @@ void read() {
   GyX = Wire.read() << 8 | Wire.read(); // 0x43 (GYRO_XOUT_H) & 0x44 (GYRO_XOUT_L)
   GyY = Wire.read() << 8 | Wire.read(); // 0x45 (GYRO_YOUT_H) & 0x46 (GYRO_YOUT_L)
   GyZ = Wire.read() << 8 | Wire.read(); // 0x47 (GYRO_ZOUT_H) & 0x48 (GYRO_ZOUT_L)
+
+  // reduce noise
+  AcX = AcX / 100;
+  AcY = AcY / 100;
+  AcZ = AcZ / 100;
+  GyX = GyX / 10;
+  GyY = GyY / 10;
+  GyZ = GyZ / 10;
+  
 }
 
 void print() {
