@@ -42,6 +42,13 @@ void read() {
   GyY = (Wire.read() << 8 | Wire.read()) / 131.0; // 0x45 (GYRO_YOUT_H) & 0x46 (GYRO_YOUT_L)
   GyZ = (Wire.read() << 8 | Wire.read()) / 131.0; // 0x47 (GYRO_ZOUT_H) & 0x48 (GYRO_ZOUT_L)
 
+  // Correct the sensor data with the calculated error values
+  GyX = GyX + 1.85; // GyroErrorX ~(-0.56)
+  GyY = GyY + 0.15; // GyroErrorY ~(2)
+  GyZ = GyZ - 0.15; // GyroErrorZ ~ (-0.8)
+
+  accAngleX - 0.58; // AccErrorX ~(0.58)
+  accAngleY + 1.58; // AccErrorY ~(-1.58)
 
   // Calculating Roll and Pitch from the accelerometer data
   accAngleX = (atan(     AcY / sqrt(pow(AcX, 2) + pow(AcZ, 2))) * 180 / PI);
