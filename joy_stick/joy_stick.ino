@@ -32,10 +32,8 @@ void loop() {
   int ledState = digitalRead(switchPin); // Read the button's state
   int X = analogRead(pinX); // Read the X axis analog value
   int Y = analogRead(pinY); // Read the Y axis analog value
-  int converted_x;
-  int converted_y;
-  convert_x = (X-512)/20;
-  convert_y = (Y-512)/20;
+  int converted_x = (X-512)/20;
+  int converted_y = (Y-512)/20;
 
 //  converted_x = -round((((float(X)/1023)*40)-22));
 //  converted_y = round((((float(Y)/1023)*40)-22));
