@@ -35,8 +35,62 @@ MS5611 MS5611(0x77);   // 0x76 = CSB to VCC; 0x77 = CSB to GND
 long timer = 0;
 long start_time = millis();
 
-void writeLine(long timer){
+void setup() {
 
+  // Open serial communications and wait for port to open:
+  Serial.begin(9600);
+  while (!Serial) {
+    ; // wait for serial port to connect. Needed for native USB port only
+  }
+  
+  Serial.print("Initializing SD card...");
+  if (!SD.begin(4)) {
+    Serial.println("SD initialization failed!");
+    while (1);
+  }
+  Serial.println("SD initialization done.");
+
+  // open the file. note that only one file can be open at a time,
+  // so you have to close this one before opening another.
+  myFile = SD.open(filename, FILE_WRITE);
+
+  // if the file opened okay, write to it:
+  if (myFile) {
+    myFile.println("Time+, Temp,Pressure,AccX, AccY, AccZ, GyroX, GyroY, GyroZ, AccAngleX, AccAngleY, GyroAngleX, GyroAngleY, GyroAngleZ, AngleX, AngleY, AngleZ");
+    myFile.close();
+    Serial.println("Able to open file.");
+  } else {
+    // if the file didn't open, print an error:
+    Serial.println("Error opening file.");
+  }
+
+  MS5611.begin();
+  mpu6050.begin();
+  mpu6050.calcGyroOffsets(true);
+
+  Serial.println("Setup done");
+}
+
+void loop() {
+  mpu6050.update();
+
+  if(millis() - timer > 10){
+    int result = MS5611.read();
+    if (result != MS5611_READ_OK) {
+      // maybe not do this, so we at least have the measurements of the MPU6050
+      myFile = SD.open(filename, FILE_WRITE);
+      myFile.print("Error in read: ");
+      myFile.println(result);
+      myFile.close(); 
+    } else {
+      writeLine(timer);
+    }
+
+    timer = millis();
+  }
+}
+
+void writeLine(long timer){
   myFile = SD.open(filename, FILE_WRITE);
 
   myFile.print(timer);
@@ -84,68 +138,5 @@ void writeLine(long timer){
   myFile.print(mpu6050.getAngleZ());
   myFile.print("\n");
 
-  myFile.close();
-  
-}
-
-void setup() {
-
-  // Open serial communications and wait for port to open:
-  Serial.begin(9600);
-  while (!Serial) {
-    ; // wait for serial port to connect. Needed for native USB port only
-  }
-  
-  Serial.print("Initializing SD card...");
-
-  if (!SD.begin(4)) {
-    Serial.println("initialization failed!");
-    while (1);
-  }
-  
-  Serial.println("Initialization done.");
-
-  // open the file. note that only one file can be open at a time,
-  // so you have to close this one before opening another.
-  myFile = SD.open(filename, FILE_WRITE);
-
-  // if the file opened okay, write to it:
-  if (myFile) {
-    myFile.println("Time+, Temp,Pressure,AccX, AccY, AccZ, GyroX, GyroY, GyroZ, AccAngleX, AccAngleY, GyroAngleX, GyroAngleY, GyroAngleZ, AngleX, AngleY, AngleZ");
-    myFile.close();
-    Serial.println("Able to open file.");
-  } else {
-    // if the file didn't open, print an error:
-    Serial.println("Error opening file.");
-  }
-
-  bool b = MS5611.begin();
-  mpu6050.begin();
-  mpu6050.calcGyroOffsets(true);
-}
-
-void loop() {
-  mpu6050.update();
-
-  if(millis() - timer > 10){
-    
-    int result = MS5611.read();
-    if (result != MS5611_READ_OK)
-    {
-      myFile = SD.open(filename, FILE_WRITE);
-      myFile.print("Error in read: ");
-      myFile.println(result);
-      myFile.close();
-    }
-    else
-    {
-      writeLine(timer);
-    }
-
-    timer = millis();
-  }
-
-  if (millis()-start_time > 300000){
-    myFile.close();
-  }
+  myFile.close(); 
 }
