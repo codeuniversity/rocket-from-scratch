@@ -25,7 +25,7 @@
 #include "MS5611.h"
 #include <Wire.h>
 
-File file;
+File myFile;
 //Naming Limitations: https://www.arduino.cc/en/Reference/SDCardNotes
 char filename[] = "first.csv";
 
@@ -35,52 +35,57 @@ MS5611 MS5611(0x77);   // 0x76 = CSB to VCC; 0x77 = CSB to GND
 long timer = 0;
 long start_time = millis();
 
-void writeLine(long timer, File file){
+void writeLine(long timer){
 
-  file.print(timer);
-  file.print(",");
+  myFile = SD.open(filename, FILE_WRITE);
 
-  file.print(MS5611.getTemperature());
-  file.print(",");
-  file.print(MS5611.getPressure());
-  file.print(",");
+  myFile.print(timer);
+  myFile.print(",");
 
-  file.print(mpu6050.getAccX());
-  file.print(",");
-  file.print(mpu6050.getAccY());
-  file.print(",");
-  file.print(mpu6050.getAccZ());
-  file.print(",");
+  myFile.print(MS5611.getTemperature());
+  myFile.print(",");
+  myFile.print(MS5611.getPressure());
+  myFile.print(",");
+
+  myFile.print(mpu6050.getAccX());
+  myFile.print(",");
+  myFile.print(mpu6050.getAccY());
+  myFile.print(",");
+  myFile.print(mpu6050.getAccZ());
+  myFile.print(",");
 
   // Gyro - ?
-  file.print(mpu6050.getGyroX());
-  file.print(",");
-  file.print(mpu6050.getGyroY());
-  file.print(",");
-  file.print(mpu6050.getGyroZ());
-  file.print(",");
+  myFile.print(mpu6050.getGyroX());
+  myFile.print(",");
+  myFile.print(mpu6050.getGyroY());
+  myFile.print(",");
+  myFile.print(mpu6050.getGyroZ());
+  myFile.print(",");
 
   // AccAngle - ?
-  file.print(mpu6050.getAccAngleX());
-  file.print(",");
-  file.print(mpu6050.getAccAngleY());
-  file.print(",");
+  myFile.print(mpu6050.getAccAngleX());
+  myFile.print(",");
+  myFile.print(mpu6050.getAccAngleY());
+  myFile.print(",");
 
   // GyroAngle - ?
-  file.print(mpu6050.getGyroAngleX());
-  file.print(",");
-  file.print(mpu6050.getGyroAngleY());
-  file.print(",");
-  file.print(mpu6050.getGyroAngleZ());
-  file.print(",");
+  myFile.print(mpu6050.getGyroAngleX());
+  myFile.print(",");
+  myFile.print(mpu6050.getGyroAngleY());
+  myFile.print(",");
+  myFile.print(mpu6050.getGyroAngleZ());
+  myFile.print(",");
 
   // Angle - Degrees
-  file.print(mpu6050.getAngleX());
-  file.print(",");
-  file.print(mpu6050.getAngleY());
-  file.print(",");
-  file.print(mpu6050.getAngleZ());
-  file.print("\n");
+  myFile.print(mpu6050.getAngleX());
+  myFile.print(",");
+  myFile.print(mpu6050.getAngleY());
+  myFile.print(",");
+  myFile.print(mpu6050.getAngleZ());
+  myFile.print("\n");
+
+  myFile.close();
+  
 }
 
 void setup() {
@@ -102,13 +107,15 @@ void setup() {
 
   // open the file. note that only one file can be open at a time,
   // so you have to close this one before opening another.
-  file = SD.open(filename, FILE_WRITE);
+  myFile = SD.open(filename, FILE_WRITE);
 
-  if (file) {
-    file.println("Time+, Temp,Pressure,AccX, AccY, AccZ, GyroX, GyroY, GyroZ, AccAngleX, AccAngleY, GyroAngleX, GyroAngleY, GyroAngleZ, AngleX, AngleY, AngleZ");
-    file.close();
+  // if the file opened okay, write to it:
+  if (myFile) {
+    myFile.println("Time+, Temp,Pressure,AccX, AccY, AccZ, GyroX, GyroY, GyroZ, AccAngleX, AccAngleY, GyroAngleX, GyroAngleY, GyroAngleZ, AngleX, AngleY, AngleZ");
+    myFile.close();
     Serial.println("Able to open file.");
   } else {
+    // if the file didn't open, print an error:
     Serial.println("Error opening file.");
   }
 
@@ -118,35 +125,27 @@ void setup() {
 }
 
 void loop() {
-  file = SD.open(filename, FILE_WRITE);
+  mpu6050.update();
 
-  if (!file) {
-    break;
-  } else {
-    loop {
-      mpu6050.update();
-
-      if(millis() - timer > 10){
-        
-        int result = MS5611.read();
-        if (result != MS5611_READ_OK)
-        {
-          file.print("Error in read: ");
-          file.println(result);
-        }
-        else
-        {
-          writeLine(timer, file);
-        }
+  if(millis() - timer > 10){
     
-        timer = millis();
-      }
-    
-      if (millis()-start_time > 300000){
-        file.close();
-        break;
-      }
+    int result = MS5611.read();
+    if (result != MS5611_READ_OK)
+    {
+      myFile = SD.open(filename, FILE_WRITE);
+      myFile.print("Error in read: ");
+      myFile.println(result);
+      myFile.close();
     }
+    else
+    {
+      writeLine(timer);
+    }
+
+    timer = millis();
   }
-  break;
+
+  if (millis()-start_time > 300000){
+    myFile.close();
+  }
 }
