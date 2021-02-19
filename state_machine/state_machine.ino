@@ -1,52 +1,56 @@
-int i;
+enum class State {
+  Boot,
+  Flight,
+  Fall,
+  Chute,
+  Land, 
+};
+State state;
+int data;
 
 void setup() {
   Serial.begin(9600);
+  state = State::Boot;
+  Serial.println("Start \"Boot\"");
   randomSeed(analogRead(0));
 }
 
 void loop() {
-  // state 0
-  while (true) {
-    i = read_sensor();
-
-    // condition to go to next state
-    if (i > 95) {
+  data = read_sensor();
+  
+  switch (state) {
+    case State::Boot:
+      if (data >= 995) {
+        state = State::Flight;
+        Serial.println("\nDetected liftoff. Start \"Flight\"");
+      }
       break;
-    }
-  }
-
-  // stuff to do in-between states
-  Serial.println("transition to state 1");
-
-  // state 1
-  while (true) {
-    i = read_sensor();
-
-    if (i < 5) {
+    case State::Flight:
+      if (data >= 995) {
+        state = State::Fall;
+        Serial.println("\nDetected apogee. Start \"Fall\"");
+      }
       break;
-    }
-  }
-
-  Serial.println("transition to state 2");
-
-  // state 2
-  while (true) {
-    i = read_sensor();
-
-    if (i < 5) {
+    case State::Fall:
+      if (data >= 995) {
+        state = State::Chute;
+        Serial.println("\nEject parachute. Start \"Chute\"");
+      }
       break;
-    }
+    case State::Chute:
+      if (data >= 995) {
+        state = State::Land;
+        Serial.println("Detected landing. Start \"Land\"");
+      }
+      break;
+    case State::Land:
+      while (true) {}
+      break;
   }
-
-  Serial.println("done");
-
-  // done
-  while (true) {}
 }
 
 int read_sensor() {
-  int j = random(100);
-  Serial.println(j);
+  int j = random(1000);
+  Serial.print(j); Serial.print(" ");
   return j;
 }
