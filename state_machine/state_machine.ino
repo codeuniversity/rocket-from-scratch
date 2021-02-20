@@ -14,7 +14,7 @@ enum class LED_Mode {
   Error, 
 };
 State state;
-
+//TODO: add system to generate flexible filenames
 String logfile = "log.txt";
 String datafile = "data.csv";
 
