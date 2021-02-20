@@ -3,20 +3,29 @@ enum class State {
   Flight,
   Fall,
   Chute,
-  Land, 
+  Land,
 };
 State state;
-int data;
+
+// TODO: keep a number of values in memory, but not more
+// TODO: use SD card code
+// * file 1: data
+// * file 2: log (status, errors)
 
 void setup() {
   Serial.begin(9600);
+  setup_sensors();
+
   state = State::Boot;
   Serial.println("Start \"Boot\"");
-  randomSeed(analogRead(0));
 }
 
 void loop() {
-  data = read_sensor();
+  int data = read_sensor(); // TODO: make this a struct or class 
+  
+  // if emergency() {
+  //   ...
+  // }
   
   switch (state) {
     case State::Boot:
@@ -49,6 +58,11 @@ void loop() {
   }
 }
 
+void setup_sensors() {
+  randomSeed(analogRead(0));
+}
+
+// TODO: use mpu6050 code
 int read_sensor() {
   int j = random(1000);
   Serial.print(j); Serial.print(" ");
