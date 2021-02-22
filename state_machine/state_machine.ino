@@ -16,9 +16,8 @@ enum class State {
 };
 State state;
 
-// TODO: add system to generate flexible filenames
-const String LOG_FILE = "log.txt";
-const String DATA_FILE = "data.csv";
+File log_file;
+File data_file;
 
 // TODO: keep a number of values in memory, but not more
 // TODO: use SD card code
@@ -84,9 +83,8 @@ void log_line(String msg) {
   Serial.println(msg);
 
   // print to logfile
-  File file = SD.open(LOG_FILE, FILE_WRITE);
-  file.println(msg);
-  file.close();
+  log_file.println(msg);
+  log_file.flush();
 }
 
 // TODO: use mpu6050 code
@@ -117,12 +115,19 @@ void setup_led() {
 }
 
 void setup_sd() {
+  const String DATA_FILE = "data.csv";
+  const String LOG_FILE = "log.txt";
+  const int SD_PORT = 10;
+
   Serial.print("Initializing SD card...");
-  if (!SD.begin(10)) {
-    log_line("SD initialization failed!");
+  if (!SD.begin(SD_PORT)) {
+    Serial.println("SD initialization failed!");
     state = State::Error;
   }
   log_line("SD initialization done.");
+
+  data_file = SD.open(DATA_FILE, FILE_WRITE);
+  log_file = SD.open(LOG_FILE, FILE_WRITE);
 }
 
 void setup_sensors() {
