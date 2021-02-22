@@ -1,6 +1,7 @@
 #include <SPI.h>
 #include <SD.h>
 
+// `State` represents all states of the flight and has an additional "Boot" and "Error" state
 enum class State {
   Boot,
   Ready,
@@ -13,9 +14,13 @@ enum class State {
   Error,
 } STATE;
 
+// global FILE-objects for SD access
 File log_file;
 File data_file;
 
+// TODO: keep a number of data points in memory, but not more
+
+// `Data` represents one datapoint, measured by our sensors
 struct Data {
   // acceleration in m/s²
   int accX;
@@ -27,18 +32,18 @@ struct Data {
   int velY;
   int velZ;
 
-  // height in cm
+  // height in dm
   int height;
 };
 
-// TODO: keep a number of values in memory, but not more
-
 void setup() {
+  setup_led();
   setup_logging();
   setup_sensors();
 }
 
 void loop() {
+  // Q: does this leak memory?
   Data data = read_sensors();
 
   // if emergency() {
@@ -81,10 +86,12 @@ void loop() {
   }
 }
 
+// print one datapoint to csv-file and serial
 void print_data(String data_str) {
   print_impl(data_file, data_str, ", ");
 }
 
+// print one logging statement to logfile and serial
 void print_log(String msg) {
   print_impl(log_file, msg, ": ");
 }
@@ -101,7 +108,7 @@ void print_impl(File file, String msg, String sep) {
   file.flush();
 }
 
-// TODO: use mpu6050 code
+// read one datapoint, filter bad values, do precalculations and log datapoint
 Data read_sensors() {
   Data data;
   data.accX = random(500) - 250;
@@ -121,6 +128,7 @@ Data read_sensors() {
   return data;
 }
 
+// set status-LED based on state of flight
 void set_led(State state ) {
   switch (state) {
     case State::Ready:
@@ -137,9 +145,9 @@ void set_led(State state ) {
 }
 
 void setup_led() {
-  pinMode(6, OUTPUT);
-  pinMode(5, OUTPUT);
-  pinMode(3, OUTPUT);
+  pinMode(6, OUTPUT); // red
+  pinMode(5, OUTPUT); // green
+  pinMode(3, OUTPUT); // blue
 }
 
 void setup_logging() {
@@ -147,6 +155,7 @@ void setup_logging() {
   setup_sd();
 }
 
+// connect to SD and create File-objects
 void setup_sd() {
   const String DATA_FILE = "data.csv";
   const String LOG_FILE = "log.txt";
