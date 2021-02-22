@@ -20,15 +20,9 @@ File log_file;
 File data_file;
 
 // TODO: keep a number of values in memory, but not more
-// TODO: use SD card code
-// - [ ] file 1: data
-// - [x] file 2: log (status, errors)
 
 void setup() {
-  // setup
-  Serial.begin(9600);
-  setup_led();
-  setup_sd();
+  setup_logging();
   setup_sensors();
 }
 
@@ -43,29 +37,29 @@ void loop() {
     case State::Boot:
       state = State::Ready;
       set_led(state);
-      log_line("Ready for liftoff! Start \"Ready\"");
+      print_log("Ready for liftoff! Start \"Ready\"");
     case State::Ready:
       if (data >= 995) {
         state = State::Flight;
-        log_line("Detected liftoff. Start \"Flight\"");
+        print_log("Detected liftoff. Start \"Flight\"");
       }
       break;
     case State::Flight:
       if (data >= 995) {
         state = State::Fall;
-        log_line("Detected apogee. Start \"Fall\"");
+        print_log("Detected apogee. Start \"Fall\"");
       }
       break;
     case State::Fall:
       if (data >= 995) {
         state = State::Chute;
-        log_line("Eject parachute. Start \"Chute\"");
+        print_log("Eject parachute. Start \"Chute\"");
       }
       break;
     case State::Chute:
       if (data >= 995) {
         state = State::Land;
-        log_line("Detected landing. Start \"Land\"");
+        print_log("Detected landing. Start \"Land\"");
       }
       break;
     case State::Land:
@@ -75,21 +69,30 @@ void loop() {
   }
 }
 
-void log_line(String msg) {
+void print_data(String data_str) {
+  print_impl(data_file, data_str);
+}
+
+void print_log(String msg) {
+  print_impl(log_file, msg);
+}
+
+void print_impl(File file, String msg) {
   // add timestamp to message
   msg = String(millis()) + ": " + msg;
 
   // print to serial
   Serial.println(msg);
 
-  // print to logfile
-  log_file.println(msg);
-  log_file.flush();
+  // print to file
+  file.println(msg);
+  file.flush();
 }
 
 // TODO: use mpu6050 code
 int read_sensors() {
   int j = random(1000);
+  print_data(String(j));
   return j;
 }
 
@@ -114,6 +117,11 @@ void setup_led() {
   pinMode(3, OUTPUT);
 }
 
+void setup_logging() {
+  Serial.begin(9600);
+  setup_sd();
+}
+
 void setup_sd() {
   const String DATA_FILE = "data.csv";
   const String LOG_FILE = "log.txt";
@@ -124,7 +132,7 @@ void setup_sd() {
     Serial.println("SD initialization failed!");
     state = State::Error;
   }
-  log_line("SD initialization done.");
+  print_log("SD initialization done.");
 
   data_file = SD.open(DATA_FILE, FILE_WRITE);
   log_file = SD.open(LOG_FILE, FILE_WRITE);
