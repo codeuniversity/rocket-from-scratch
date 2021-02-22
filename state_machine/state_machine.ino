@@ -11,11 +11,25 @@ enum class State {
 
   // something went wrong
   Error,
-};
-State STATE;
+} STATE;
 
 File log_file;
 File data_file;
+
+struct Data {
+  // acceleration in m/s²
+  int accX;
+  int accY;
+  int accZ;
+
+  // velocity in m/s
+  int velX;
+  int velY;
+  int velZ;
+
+  // height in cm
+  int height;
+};
 
 // TODO: keep a number of values in memory, but not more
 
@@ -25,7 +39,7 @@ void setup() {
 }
 
 void loop() {
-  int data = read_sensors(); // TODO: make this a struct or class
+  Data data = read_sensors();
 
   // if emergency() {
   //   ...
@@ -37,25 +51,25 @@ void loop() {
       set_led(STATE);
       print_log("Ready for liftoff! Start \"Ready\"");
     case State::Ready:
-      if (data >= 995) {
+      if (data.accZ >= 240) {
         STATE = State::Flight;
         print_log("Detected liftoff. Start \"Flight\"");
       }
       break;
     case State::Flight:
-      if (data >= 995) {
+      if (data.accZ <= -240) {
         STATE = State::Fall;
         print_log("Detected apogee. Start \"Fall\"");
       }
       break;
     case State::Fall:
-      if (data >= 995) {
+      if (data.height <= 10) {
         STATE = State::Chute;
         print_log("Eject parachute. Start \"Chute\"");
       }
       break;
     case State::Chute:
-      if (data >= 995) {
+      if (data.accZ <= -240) {
         STATE = State::Land;
         print_log("Detected landing. Start \"Land\"");
       }
@@ -68,16 +82,16 @@ void loop() {
 }
 
 void print_data(String data_str) {
-  print_impl(data_file, data_str);
+  print_impl(data_file, data_str, ", ");
 }
 
 void print_log(String msg) {
-  print_impl(log_file, msg);
+  print_impl(log_file, msg, ": ");
 }
 
-void print_impl(File file, String msg) {
+void print_impl(File file, String msg, String sep) {
   // add timestamp to message
-  msg = String(millis()) + ": " + msg;
+  msg = String(millis()) + sep + msg;
 
   // print to serial
   Serial.println(msg);
@@ -88,10 +102,23 @@ void print_impl(File file, String msg) {
 }
 
 // TODO: use mpu6050 code
-int read_sensors() {
-  int j = random(1000);
-  print_data(String(j));
-  return j;
+Data read_sensors() {
+  Data data;
+  data.accX = random(500) - 250;
+  data.accY = random(500) - 250;
+  data.accZ = random(500) - 250;
+  data.velX = random(500) - 250;
+  data.velY = random(500) - 250;
+  data.velZ = random(500) - 250;
+  data.height = random(500);
+
+  print_data(
+    String(data.accX) + ", " + String(data.accY) + ", " + String(data.accZ) + ", " +
+    String(data.velX) + ", " + String(data.velY) + ", " + String(data.velZ) + ", " +
+    String(data.height)
+  );
+
+  return data;
 }
 
 void set_led(State state ) {
