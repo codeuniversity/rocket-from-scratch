@@ -1,8 +1,6 @@
 #include <SPI.h>
 #include <SD.h>
 
-using namespace std;
-
 enum class State {
   Boot,
   Ready,
@@ -14,7 +12,7 @@ enum class State {
   // something went wrong
   Error,
 };
-State state;
+State STATE;
 
 File log_file;
 File data_file;
@@ -33,38 +31,38 @@ void loop() {
   //   ...
   // }
 
-  switch (state) {
+  switch (STATE) {
     case State::Boot:
-      state = State::Ready;
-      set_led(state);
+      STATE = State::Ready;
+      set_led(STATE);
       print_log("Ready for liftoff! Start \"Ready\"");
     case State::Ready:
       if (data >= 995) {
-        state = State::Flight;
+        STATE = State::Flight;
         print_log("Detected liftoff. Start \"Flight\"");
       }
       break;
     case State::Flight:
       if (data >= 995) {
-        state = State::Fall;
+        STATE = State::Fall;
         print_log("Detected apogee. Start \"Fall\"");
       }
       break;
     case State::Fall:
       if (data >= 995) {
-        state = State::Chute;
+        STATE = State::Chute;
         print_log("Eject parachute. Start \"Chute\"");
       }
       break;
     case State::Chute:
       if (data >= 995) {
-        state = State::Land;
+        STATE = State::Land;
         print_log("Detected landing. Start \"Land\"");
       }
       break;
     case State::Land:
     case State::Error:
-      set_led(state);
+      set_led(STATE);
       while (true) {}
   }
 }
@@ -130,7 +128,7 @@ void setup_sd() {
   Serial.print("Initializing SD card...");
   if (!SD.begin(SD_PORT)) {
     Serial.println("SD initialization failed!");
-    state = State::Error;
+    STATE = State::Error;
   }
   print_log("SD initialization done.");
 
