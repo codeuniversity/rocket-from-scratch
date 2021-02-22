@@ -10,13 +10,11 @@ enum class State {
   Fall,
   Chute,
   Land,
-};
-State state;
 
-enum class LED_Mode {
-  Ready,
+  // something went wrong
   Error,
 };
+State state;
 
 // TODO: add system to generate flexible filenames
 const String LOG_FILE = "log.txt";
@@ -44,8 +42,8 @@ void loop() {
 
   switch (state) {
     case State::Boot:
-      set_led(LED_Mode::Ready);
       state = State::Ready;
+      set_led(state);
       log_line("Ready for liftoff! Start \"Ready\"");
     case State::Ready:
       if (data >= 995) {
@@ -72,8 +70,9 @@ void loop() {
       }
       break;
     case State::Land:
+    case State::Error:
+      set_led(state);
       while (true) {}
-      break;
   }
 }
 
@@ -96,14 +95,16 @@ int read_sensors() {
   return j;
 }
 
-void set_led(LED_Mode mode ) {
-  switch (mode) {
-    case LED_Mode::Ready:
-      analogWrite(5, 255);
-      break;
-    case LED_Mode::Error:
-      analogWrite(5, 0);
+void set_led(State state ) {
+  switch (state) {
+    case State::Ready:
       analogWrite(3, 0);
+      analogWrite(5, 255);
+      analogWrite(6, 0);
+      break;
+    case State::Error:
+      analogWrite(3, 0);
+      analogWrite(5, 0);
       analogWrite(6, 255);
       break;
   }
@@ -119,8 +120,7 @@ void setup_sd() {
   Serial.print("Initializing SD card...");
   if (!SD.begin(10)) {
     log_line("SD initialization failed!");
-    set_led(LED_Mode::Error);
-    while (true);
+    state = State::Error;
   }
   log_line("SD initialization done.");
 }
