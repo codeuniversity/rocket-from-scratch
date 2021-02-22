@@ -5,6 +5,7 @@ using namespace std;
 
 enum class State {
   Boot,
+  Ready,
   Flight,
   Fall,
   Chute,
@@ -32,11 +33,6 @@ void setup() {
   setup_led();
   setup_sd();
   setup_sensors();
-
-  // we are ready to liftoff
-  state = State::Boot;
-  log_line("Start \"Boot\"");
-  set_led(LED_Mode::Ready);
 }
 
 void loop() {
@@ -48,6 +44,10 @@ void loop() {
 
   switch (state) {
     case State::Boot:
+      set_led(LED_Mode::Ready);
+      state = State::Ready;
+      log_line("Ready for liftoff! Start \"Ready\"");
+    case State::Ready:
       if (data >= 995) {
         state = State::Flight;
         log_line("Detected liftoff. Start \"Flight\"");
