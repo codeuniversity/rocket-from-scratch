@@ -30,10 +30,6 @@ enum class State {
 MPU6050 mpu6050(Wire);
 MS5611 MS5611(0x77);   // 0x76 = CSB to VCC; 0x77 = CSB to GND
 
-// sensor
-MPU6050 mpu6050(Wire);
-MS5611 MS5611(0x77);   // 0x76 = CSB to VCC; 0x77 = CSB to GND
-
 // TODO: keep a number of data points in memory, but not more
 
 // `Data` represents one datapoint, measured by our sensors
@@ -57,7 +53,7 @@ struct Data {
 
   // height in m
   float height;
-};
+} data;
 
 void setup() {
   Serial.begin(9600);
@@ -68,8 +64,7 @@ void setup() {
 }
 
 void loop() {
-  static Data data;
-  data = read_sensors();
+  update_sensors();
 
   // if emergency() {
   //   ...
@@ -115,32 +110,40 @@ void loop() {
   */
 }
 
-// print one datapoint to csv-file and serial
-void print_data(String data_str) {
-  print_impl(data_file, data_str, ", ");
+void write_data(double const * data, int size) {
+  Serial.print(millis());
+  data_file.print(millis());
+  for (int i = 0; i < size; i++) {
+    Serial.print(',');
+    data_file.print(',');
+    Serial.print(data[i]);
+    data_file.print(data[i]);
+  }
+  Serial.println();
+  data_file.println();
+  data_file.flush();
 }
 
 // print one logging statement to logfile and serial
-void print_log(String msg) {
+void print_log(String const & msg) {
   print_impl(log_file, msg, ": ");
 }
 
-void print_impl(File file, String msg, String sep) {
+void print_impl(File file, String const & msg, String const & sep) {
   // add timestamp to message
-  msg = String(millis()) + sep + msg;
 
   // print to serial
   Serial.println(msg);
 
   // print to file
-  file.println(msg);
+  file.print(millis());
+  file.print(sep);
+  file.print(msg);
   file.flush();
 }
 
 // read one datapoint, filter bad values, do precalculations and log datapoint
-Data read_sensors() {
-  static Data data;
-
+void update_sensors() {
   mpu6050.update();
 
   int err = MS5611.read();
@@ -161,30 +164,31 @@ Data read_sensors() {
   double upwardsAcc = mpu6050.getAccX();
 
   data.height = heightTP;
-
-  print_data(
-    String(mpu6050.getTemp()) + ", " +
-    String(temperatureMS) + ", " +
-    String(pressure) + ", " + 
-    String(heightTP) + ", " + 
-    String(upwardsAcc) + ", " +
-    String(mpu6050.getAccY()) + ", " +
-    String(mpu6050.getAccZ()) + ", " +
-    String(mpu6050.getGyroX()) + ", " +
-    String(mpu6050.getGyroY()) + ", " +
-    String(mpu6050.getGyroZ()) + ", " +
-    String(mpu6050.getAccAngleX()) + ", " +
-    String(mpu6050.getAccAngleY()) + ", " +
-    String(mpu6050.getGyroAngleX()) + ", " +
-    String(mpu6050.getGyroAngleY()) + ", " +
-    String(mpu6050.getGyroAngleZ()) + ", " +
-    String(mpu6050.getAngleX()) + ", " +
-    String(mpu6050.getAngleY()) + ", " +
-    String(mpu6050.getAngleZ())
-  );
+  
+  {
+    double const data[] = {
+      mpu6050.getTemp(),
+      temperatureMS,
+      pressure,
+      heightTP,
+      upwardsAcc,
+      mpu6050.getAccY(),
+      mpu6050.getAccZ(),
+      mpu6050.getGyroX(),
+      mpu6050.getGyroY(),
+      mpu6050.getGyroZ(),
+      mpu6050.getAccAngleX(),
+      mpu6050.getAccAngleY(),
+      mpu6050.getGyroAngleX(),
+      mpu6050.getGyroAngleY(),
+      mpu6050.getGyroAngleZ(),
+      mpu6050.getAngleX(),
+      mpu6050.getAngleY(),
+      mpu6050.getAngleZ()
+    };
+    write_data(data, 18);
+  }
   print_log("Wrote sensor data to file");
-
-  return data;
 }
 
 float calc_height(float temp, float pressure) {
@@ -215,7 +219,7 @@ void setup_led() {
   pinMode(3, OUTPUT); // blue
 }
 
-//  connect to SD and create File-objects
+// connect to SD and create File-objects
 void setup_sd() {
   String DATA_FILE = "-data.csv";
   String LOG_FILE = "-log.txt";
