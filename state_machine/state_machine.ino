@@ -48,14 +48,18 @@ struct Data {
 };
 
 void setup() {
+  Serial.begin(9600);
+
   setup_led();
   setup_logging();
   setup_sensors();
+  delay(0);
 }
 
 void loop() {
-  // Q: does this leak memory?
-  Data data = read_sensors();
+  static Data data;
+  data = read_sensors();
+  delay(10);
 
   // if emergency() {
   //   ...
@@ -102,24 +106,25 @@ void loop() {
 }
 
 // print one datapoint to csv-file and serial
-void print_data(String data_str) {
-  print_impl(data_file, data_str, ", ");
+void print_data(String const & msg) {
+  print_impl(data_file, msg, ", ");
 }
 
 // print one logging statement to logfile and serial
-void print_log(String msg) {
+void print_log(String const & msg) {
   print_impl(log_file, msg, ": ");
 }
 
-void print_impl(File file, String msg, String sep) {
+void print_impl(File file, String const & msg, String const & sep) {
   // add timestamp to message
-  msg = String(millis()) + sep + msg;
 
   // print to serial
   Serial.println(msg);
 
   // print to file
-  file.println(msg);
+  file.print(millis());
+  file.print(sep);
+  file.print(msg);
   file.flush();
 }
 
@@ -140,8 +145,9 @@ Data read_sensors() {
   double upwardsAcc = mpu6050.getAccX();
 
   data.height = heightTP;
-
-  print_data(
+  
+  {
+  String data = 
     String(mpu6050.getTemp()) + ", " +
     String(temperatureMS) + ", " +
     String(pressure) + ", " + 
@@ -160,9 +166,14 @@ Data read_sensors() {
     String(mpu6050.getGyroAngleZ()) + ", " +
     String(mpu6050.getAngleX()) + ", " +
     String(mpu6050.getAngleY()) + ", " +
-    String(mpu6050.getAngleZ())
-  );
-  print_log("Wrote sensor data to file");
+    String(mpu6050.getAngleZ());
+    print_data(data);
+    Serial.println(data);
+    Serial.println("test");
+  }
+  String msg = "Wrote sensor data to file";
+  print_log(msg);
+  Serial.println("nuts");
 
   return data;
 }
@@ -197,7 +208,6 @@ void setup_led() {
 }
 
 void setup_logging() {
-  Serial.begin(9600);
   setup_sd();
 }
 
@@ -219,8 +229,6 @@ void setup_sd() {
 }
 
 void setup_sensors() {
-    Serial.begin(9600);
-
     Serial.print("MS5611 ");
     Serial.println(MS5611.begin() ? "found" : "not found");
 
@@ -228,5 +236,6 @@ void setup_sensors() {
     mpu6050.calcGyroOffsets(true);
     Serial.println("Done");
     
-    print_data("Time, TempMPU, TempMS, Pressure, heightTP, heightAcc, AccX, AccY, AccZ, GyroX, GyroY, GyroZ, AccAngleX, AccAngleY, GyroAngleX, GyroAngleY, GyroZ, AngleX, AngleY, AngleZ");
+    String header = "Time, TempMPU, TempMS, Pressure, heightTP, heightAcc, AccX, AccY, AccZ, GyroX, GyroY, GyroZ, AccAngleX, AccAngleY, GyroAngleX, GyroAngleY, GyroZ, AngleX, AngleY, AngleZ";
+    print_data(header);
 }
