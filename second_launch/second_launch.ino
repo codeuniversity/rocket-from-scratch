@@ -5,6 +5,10 @@
 #include <MS5611.h>
 #include <Wire.h>
 
+#include <MPU6050_tockn.h>
+#include <MS5611.h>
+#include <Wire.h>
+
 // `State` represents all states of the flight and has an additional "Boot" and "Error" state
 enum class State {
   Boot,
@@ -18,9 +22,13 @@ enum class State {
   Error,
 } STATE;
 
-// // global FILE-objects for SD access
+// global FILE-objects for SD access
  File log_file;
  File data_file;
+
+// sensor
+MPU6050 mpu6050(Wire);
+MS5611 MS5611(0x77);   // 0x76 = CSB to VCC; 0x77 = CSB to GND
 
 // sensor
 MPU6050 mpu6050(Wire);
@@ -30,6 +38,9 @@ MS5611 MS5611(0x77);   // 0x76 = CSB to VCC; 0x77 = CSB to GND
 
 // `Data` represents one datapoint, measured by our sensors
 struct Data {
+  // time in ms
+  int time;
+
   // acceleration in m/s²
   struct Acc {
     float x;
@@ -63,6 +74,8 @@ void loop() {
   // if emergency() {
   //   ...
   // }
+
+  /*
 
   switch (STATE) {
     case State::Boot:
@@ -98,6 +111,8 @@ void loop() {
       set_led(STATE);
       while (true) {}
   }
+
+  */
 }
 
 // print one datapoint to csv-file and serial
@@ -135,15 +150,39 @@ Data read_sensors() {
     data.height = calc_height(MS5611.getTemperature(), MS5611.getPressure());
   }
 
+  data.time = millis();
   data.acc.x = mpu6050.getAccX();
   data.acc.y = mpu6050.getAccY();
   data.acc.z = mpu6050.getAccZ();
 
+  double temperatureMS = MS5611.getTemperature();
+  double pressure = MS5611.getPressure();
+  double heightTP = calc_height(temperatureMS, pressure);
+  double upwardsAcc = mpu6050.getAccX();
+
+  data.height = heightTP;
+
   print_data(
-    String(data.acc.x) + ", " + String(data.acc.y) + ", " + String(data.acc.z) + ", " +
-    // String(data.velX) + ", " + String(data.velY) + ", " + String(data.velZ) + ", " +
-    String(data.height)
+    String(mpu6050.getTemp()) + ", " +
+    String(temperatureMS) + ", " +
+    String(pressure) + ", " + 
+    String(heightTP) + ", " + 
+    String(upwardsAcc) + ", " +
+    String(mpu6050.getAccY()) + ", " +
+    String(mpu6050.getAccZ()) + ", " +
+    String(mpu6050.getGyroX()) + ", " +
+    String(mpu6050.getGyroY()) + ", " +
+    String(mpu6050.getGyroZ()) + ", " +
+    String(mpu6050.getAccAngleX()) + ", " +
+    String(mpu6050.getAccAngleY()) + ", " +
+    String(mpu6050.getGyroAngleX()) + ", " +
+    String(mpu6050.getGyroAngleY()) + ", " +
+    String(mpu6050.getGyroAngleZ()) + ", " +
+    String(mpu6050.getAngleX()) + ", " +
+    String(mpu6050.getAngleY()) + ", " +
+    String(mpu6050.getAngleZ())
   );
+  print_log("Wrote sensor data to file");
 
   return data;
 }
@@ -207,7 +246,8 @@ void setup_sensors() {
   print_log("MS5611 ");
   print_log(MS5611.begin() ? "found" : "not found");
 
-  // Wire.begin();
   mpu6050.begin();
   mpu6050.calcGyroOffsets(true);
+    
+  print_data("Time, TempMPU, TempMS, Pressure, heightTP, AccX, AccY, AccZ, GyroX, GyroY, GyroZ, AccAngleX, AccAngleY, GyroAngleX, GyroAngleY, GyroZ, AngleX, AngleY, AngleZ");
 }
