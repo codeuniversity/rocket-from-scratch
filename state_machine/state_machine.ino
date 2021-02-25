@@ -1,6 +1,10 @@
 #include <SPI.h>
 #include <SD.h>
 
+#include <MPU6050_tockn.h>
+#include <MS5611.h>
+#include <Wire.h>
+
 // `State` represents all states of the flight and has an additional "Boot" and "Error" state
 enum class State {
   Boot,
@@ -18,10 +22,17 @@ enum class State {
 File log_file;
 File data_file;
 
+// sensor
+MPU6050 mpu6050(Wire);
+MS5611 MS5611(0x77);   // 0x76 = CSB to VCC; 0x77 = CSB to GND
+
 // TODO: keep a number of data points in memory, but not more
 
 // `Data` represents one datapoint, measured by our sensors
 struct Data {
+  // time in ms
+  int time;
+
   // acceleration in m/s²
   int accX;
   int accY;
@@ -49,6 +60,8 @@ void loop() {
   // if emergency() {
   //   ...
   // }
+
+  /*
 
   switch (STATE) {
     case State::Boot:
@@ -84,6 +97,8 @@ void loop() {
       set_led(STATE);
       while (true) {}
   }
+
+  */
 }
 
 // print one datapoint to csv-file and serial
@@ -110,22 +125,53 @@ void print_impl(File file, String msg, String sep) {
 
 // read one datapoint, filter bad values, do precalculations and log datapoint
 Data read_sensors() {
-  Data data;
-  data.accX = random(500) - 250;
-  data.accY = random(500) - 250;
-  data.accZ = random(500) - 250;
-  data.velX = random(500) - 250;
-  data.velY = random(500) - 250;
-  data.velZ = random(500) - 250;
-  data.height = random(500);
+  static Data data;
+  mpu6050.update();
+
+  data.time = millis();
+  data.accX = mpu6050.getAccX();
+  data.accY = mpu6050.getAccY();
+  data.accZ = mpu6050.getAccZ();
+
+  double temperatureMS = MS5611.getTemperature();
+  double pressure = MS5611.getPressure();
+  double heightTP = calcHeightTP(temperatureMS, pressure);
+  //double heightAcc = calcHeightAcc(upwardsAcc);
+  double upwardsAcc = mpu6050.getAccX();
+
+  data.height = heightTP;
 
   print_data(
-    String(data.accX) + ", " + String(data.accY) + ", " + String(data.accZ) + ", " +
-    String(data.velX) + ", " + String(data.velY) + ", " + String(data.velZ) + ", " +
-    String(data.height)
+    String(mpu6050.getTemp()) + ", " +
+    String(temperatureMS) + ", " +
+    String(pressure) + ", " + 
+    String(heightTP) + ", " + 
+    //String(heightAcc) + ", " + 
+    String(upwardsAcc) + ", " +
+    String(mpu6050.getAccY()) + ", " +
+    String(mpu6050.getAccZ()) + ", " +
+    String(mpu6050.getGyroX()) + ", " +
+    String(mpu6050.getGyroY()) + ", " +
+    String(mpu6050.getGyroZ()) + ", " +
+    String(mpu6050.getAccAngleX()) + ", " +
+    String(mpu6050.getAccAngleY()) + ", " +
+    String(mpu6050.getGyroAngleX()) + ", " +
+    String(mpu6050.getGyroAngleY()) + ", " +
+    String(mpu6050.getGyroAngleZ()) + ", " +
+    String(mpu6050.getAngleX()) + ", " +
+    String(mpu6050.getAngleY()) + ", " +
+    String(mpu6050.getAngleZ())
   );
+  print_log("Wrote sensor data to file");
 
   return data;
+}
+
+// Average Pressure at sea level
+float const P0 = 1013.25;
+
+double calcHeightTP(double temp, double pressure) {
+    return ((pow((pressure / P0), (1/5.257)) - 1) * (temp + 273.15) / 0.0065);
 }
 
 // set status-LED based on state of flight
@@ -157,8 +203,8 @@ void setup_logging() {
 
 // connect to SD and create File-objects
 void setup_sd() {
-  const String DATA_FILE = "data.csv";
-  const String LOG_FILE = "log.txt";
+  const String DATA_FILE = "test_data.csv";
+  const String LOG_FILE = "test_log.txt";
   const int SD_PORT = 10;
 
   Serial.print("Initializing SD card...");
@@ -173,5 +219,14 @@ void setup_sd() {
 }
 
 void setup_sensors() {
-  randomSeed(analogRead(0));
+    Serial.begin(9600);
+
+    Serial.print("MS5611 ");
+    Serial.println(MS5611.begin() ? "found" : "not found");
+
+    Serial.print("calibrating MPU6050...");
+    mpu6050.calcGyroOffsets(true);
+    Serial.println("Done");
+    
+    print_data("Time, TempMPU, TempMS, Pressure, heightTP, heightAcc, AccX, AccY, AccZ, GyroX, GyroY, GyroZ, AccAngleX, AccAngleY, GyroAngleX, GyroAngleY, GyroZ, AngleX, AngleY, AngleZ");
 }
