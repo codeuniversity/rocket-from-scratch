@@ -1,5 +1,5 @@
-#include <SPI.h>
-#include <SD.h>
+// #include <SPI.h>
+// #include <SD.h>
 
 // `State` represents all states of the flight and has an additional "Boot" and "Error" state
 enum class State {
@@ -14,9 +14,9 @@ enum class State {
   Error,
 } STATE;
 
-// global FILE-objects for SD access
-File log_file;
-File data_file;
+// // global FILE-objects for SD access
+// File log_file;
+// File data_file;
 
 // TODO: keep a number of data points in memory, but not more
 
@@ -37,8 +37,10 @@ struct Data {
 };
 
 void setup() {
+  Serial.begin(9600);
+
   setup_led();
-  setup_logging();
+  // setup_sd();
   setup_sensors();
 }
 
@@ -88,24 +90,24 @@ void loop() {
 
 // print one datapoint to csv-file and serial
 void print_data(String data_str) {
-  print_impl(data_file, data_str, ", ");
+  print_impl(data_str, ", ");
 }
 
 // print one logging statement to logfile and serial
 void print_log(String msg) {
-  print_impl(log_file, msg, ": ");
+  print_impl(msg, ": ");
 }
 
-void print_impl(File file, String msg, String sep) {
+void print_impl(String msg, String sep) {
   // add timestamp to message
   msg = String(millis()) + sep + msg;
 
   // print to serial
   Serial.println(msg);
 
-  // print to file
-  file.println(msg);
-  file.flush();
+  // // print to file
+  // file.println(msg);
+  // file.flush();
 }
 
 // read one datapoint, filter bad values, do precalculations and log datapoint
@@ -150,27 +152,22 @@ void setup_led() {
   pinMode(3, OUTPUT); // blue
 }
 
-void setup_logging() {
-  Serial.begin(9600);
-  setup_sd();
-}
+// // connect to SD and create File-objects
+// void setup_sd() {
+//   const String DATA_FILE = "data.csv";
+//   const String LOG_FILE = "log.txt";
+//   const int SD_PORT = 10;
 
-// connect to SD and create File-objects
-void setup_sd() {
-  const String DATA_FILE = "data.csv";
-  const String LOG_FILE = "log.txt";
-  const int SD_PORT = 10;
+//   Serial.print("Initializing SD card...");
+//   if (!SD.begin(SD_PORT)) {
+//     Serial.println("SD initialization failed!");
+//     STATE = State::Error;
+//   }
+//   print_log("SD initialization done.");
 
-  Serial.print("Initializing SD card...");
-  if (!SD.begin(SD_PORT)) {
-    Serial.println("SD initialization failed!");
-    STATE = State::Error;
-  }
-  print_log("SD initialization done.");
-
-  data_file = SD.open(DATA_FILE, FILE_WRITE);
-  log_file = SD.open(LOG_FILE, FILE_WRITE);
-}
+//   data_file = SD.open(DATA_FILE, FILE_WRITE);
+//   log_file = SD.open(LOG_FILE, FILE_WRITE);
+// }
 
 void setup_sensors() {
   randomSeed(analogRead(0));
