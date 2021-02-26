@@ -1,5 +1,5 @@
 #include <MPU6050_tockn.h>
-#include "MS5611.h"
+#include <MS5611.h>
 #include <Wire.h>
 
 MPU6050 mpu6050(Wire);
@@ -30,37 +30,37 @@ void loop() {
     }
     else
     {
+      // Pressure - mbar
+      Serial.print(MS5611.getPressure());Serial.print("pressure\t");
       // Temp - Celsius
-      Serial.print(MS5611.getTemperature());Serial.print("\t");
-      // Pressure - Milli Bar
-      Serial.print(MS5611.getPressure());Serial.print("\t");
+      Serial.print(MS5611.getTemperature());Serial.print("temp1\t");
     }
 
     // Temp - Celsius
-    Serial.print(mpu6050.getTemp());Serial.print("\t");
-    // Acceleration - ?
-    Serial.print(mpu6050.getAccX());Serial.print("\t");
-    Serial.print(mpu6050.getAccY());Serial.print("\t");
-    Serial.print(mpu6050.getAccZ());Serial.print("\t");
+    Serial.print(mpu6050.getTemp());Serial.print("temp2\t");
+    // Acceleration - m/s2
+    Serial.print(mpu6050.getAccX());Serial.print("accx\t");
+    Serial.print(mpu6050.getAccY());Serial.print("axxy\t");
+    Serial.print(mpu6050.getAccZ());Serial.print("accz\t");
 
     // Gyro - ?
-    Serial.print(mpu6050.getGyroX());Serial.print("\t");
-    Serial.print(mpu6050.getGyroY());Serial.print("\t");
-    Serial.print(mpu6050.getGyroZ());Serial.print("\t");
+    Serial.print(mpu6050.getGyroX());Serial.print("gyrox\t");
+    Serial.print(mpu6050.getGyroY());Serial.print("gyroy\t");
+    Serial.print(mpu6050.getGyroZ());Serial.print("gyroz\t");
 
     // AccAngle - ?
-    Serial.print(mpu6050.getAccAngleX());Serial.print("\t");
-    Serial.print(mpu6050.getAccAngleY());Serial.print("\t");
+    Serial.print(mpu6050.getAccAngleX());Serial.print("accanglex\t");
+    Serial.print(mpu6050.getAccAngleY());Serial.print("accangley\t");
 
     // GyroAngle - ?
-    Serial.print(mpu6050.getGyroAngleX());Serial.print("\t");
-    Serial.print(mpu6050.getGyroAngleY());Serial.print("\t");
-    Serial.print(mpu6050.getGyroAngleZ());Serial.print("\t");
+    Serial.print(mpu6050.getGyroAngleX());Serial.print("gyroanglex\t");
+    Serial.print(mpu6050.getGyroAngleY());Serial.print("gyroangley\t");
+    Serial.print(mpu6050.getGyroAngleZ());Serial.print("gyroanglez\t");
 
     // Angle - Degrees
-    Serial.print(mpu6050.getAngleX());Serial.print("\t");
-    Serial.print(mpu6050.getAngleY());Serial.print("\t");
-    Serial.println(mpu6050.getAngleZ());Serial.print("\t");
+    Serial.print(mpu6050.getAngleX());Serial.print("anglex\t");
+    Serial.print(mpu6050.getAngleY());Serial.print("angely\t");
+    Serial.print(mpu6050.getAngleZ());Serial.print("anglez\n");
 
     timer = millis();
   }

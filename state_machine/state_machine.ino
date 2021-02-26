@@ -195,7 +195,7 @@ void update_sensors() {
   
   {
     double const data[] = {
-      millis(),
+      1.0 * millis(),
       mpu6050.getTemp(),
       temperatureMS,
       pressure, 
@@ -219,7 +219,6 @@ void update_sensors() {
     write_data(data, 19);
   }
   LOG("Wrote sensor data to file");
-  return data;
 }
 
 double calcHeightTP(double temp, double pressure) {

@@ -73,14 +73,14 @@ void print() {
   Serial.print(" | AcY: "); Serial.print(AcY);
   Serial.print(" | AcZ: "); Serial.println(AcZ);
 
-  Serial.print("accAngleX: "); Serial.print(accAngleX);
-  Serial.print(" | accAngleY: "); Serial.println(accAngleY);
+  //Serial.print("accAngleX: "); Serial.print(accAngleX);
+  //Serial.print(" | accAngleY: "); Serial.println(accAngleY);
 
   Serial.print("GyX: "); Serial.print(GyX);
   Serial.print(" | GyY: "); Serial.print(GyY);
   Serial.print(" | GyZ: "); Serial.println(GyZ);
 
-  Serial.print("roll: "); Serial.print(roll);
-  Serial.print(" | pitch: "); Serial.print(pitch);
-  Serial.print(" | yaw: "); Serial.println(yaw);
+  //Serial.print("roll: "); Serial.print(roll);
+  //Serial.print(" | pitch: "); Serial.print(pitch);
+  //Serial.print(" | yaw: "); Serial.println(yaw);
 }
