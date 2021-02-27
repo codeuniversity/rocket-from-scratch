@@ -48,6 +48,7 @@ struct Data {
 };
 
 void setup() {
+  // TODO: Figure out if we need this, does it help to leave out?
   Serial.begin(9600);
 
   setup_led();
@@ -59,6 +60,7 @@ void setup() {
 void loop() {
   static Data data;
   data = read_sensors();
+  // TODO: where should the delay be, probably use millis
   delay(10);
 
   // if emergency() {
@@ -145,14 +147,16 @@ Data read_sensors() {
   double upwardsAcc = mpu6050.getAccX();
 
   data.height = heightTP;
-  
+
+  // TODO: just have a different name?
   {
-  String data = 
+  String data =
+    // TODO: will there be less memory usage if we don't use all of these
     String(mpu6050.getTemp()) + ", " +
     String(temperatureMS) + ", " +
-    String(pressure) + ", " + 
-    String(heightTP) + ", " + 
-    //String(heightAcc) + ", " + 
+    String(pressure) + ", " +
+    String(heightTP) + ", " +
+    //String(heightAcc) + ", " +
     String(upwardsAcc) + ", " +
     String(mpu6050.getAccY()) + ", " +
     String(mpu6050.getAccZ()) + ", " +
@@ -185,6 +189,7 @@ double calcHeightTP(double temp, double pressure) {
     return ((pow((pressure / P0), (1/5.257)) - 1) * (temp + 273.15) / 0.0065);
 }
 
+// TODO: Fix the rgb pin order
 // set status-LED based on state of flight
 void set_led(State state ) {
   switch (state) {
@@ -207,6 +212,7 @@ void setup_led() {
   pinMode(3, OUTPUT); // blue
 }
 
+// TODO: is this necessary
 void setup_logging() {
   setup_sd();
 }
@@ -215,6 +221,7 @@ void setup_logging() {
 void setup_sd() {
   const String DATA_FILE = "test_data.csv";
   const String LOG_FILE = "test_log.txt";
+  // TODO: Is this pin correct?
   const int SD_PORT = 10;
 
   Serial.print("Initializing SD card...");
@@ -232,10 +239,11 @@ void setup_sensors() {
     Serial.print("MS5611 ");
     Serial.println(MS5611.begin() ? "found" : "not found");
 
+    // TODO: replace this with setGyroOffset
     Serial.print("calibrating MPU6050...");
     mpu6050.calcGyroOffsets(true);
     Serial.println("Done");
-    
+
     String header = "Time, TempMPU, TempMS, Pressure, heightTP, heightAcc, AccX, AccY, AccZ, GyroX, GyroY, GyroZ, AccAngleX, AccAngleY, GyroAngleX, GyroAngleY, GyroZ, AngleX, AngleY, AngleZ";
     print_data(header);
 }
