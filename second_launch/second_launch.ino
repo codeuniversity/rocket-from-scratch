@@ -5,10 +5,6 @@
 #include <MS5611.h>
 #include <Wire.h>
 
-#include <MPU6050_tockn.h>
-#include <MS5611.h>
-#include <Wire.h>
-
 // `State` represents all states of the flight and has an additional "Boot" and "Error" state
 enum class State {
   Boot,
@@ -56,6 +52,7 @@ struct Data {
 } data;
 
 void setup() {
+  // TODO: Figure out if we need this, does it help to leave out?
   Serial.begin(9600);
 
   setup_led();
@@ -64,13 +61,13 @@ void setup() {
 }
 
 void loop() {
+<<<<<<< HEAD:second_launch/second_launch.ino
   update_sensors();
+  delay(10);
 
   // if emergency() {
   //   ...
   // }
-
-  /*
 
   switch (STATE) {
     case State::Boot:
@@ -106,8 +103,6 @@ void loop() {
       set_led(STATE);
       while (true) {}
   }
-
-  */
 }
 
 void write_data(double const * data, int size) {
@@ -164,7 +159,7 @@ void update_sensors() {
   double upwardsAcc = mpu6050.getAccX();
 
   data.height = heightTP;
-  
+
   {
     double const data[] = {
       mpu6050.getTemp(),
@@ -197,6 +192,7 @@ float calc_height(float temp, float pressure) {
   return ((pow((P0 / pressure), (1/5.257)) - 1) * (-1) * (temp + 273.15)) / 0.0065;
 }
 
+// TODO: Fix the rgb pin order
 // set status-LED based on state of flight
 void set_led(State state) {
   switch (state) {
@@ -223,6 +219,7 @@ void setup_led() {
 void setup_sd() {
   String DATA_FILE = "-data.csv";
   String LOG_FILE = "-log.txt";
+  // TODO: Is this pin correct?
   const int SD_PORT = 10;
 
   Serial.print("Initializing SD card...");
@@ -251,6 +248,7 @@ void setup_sensors() {
   print_log(MS5611.begin() ? "found" : "not found");
 
   mpu6050.begin();
+  // TODO: replace this with setGyroOffset
   mpu6050.calcGyroOffsets(true);
     
   print_data("Time, TempMPU, TempMS, Pressure, heightTP, AccX, AccY, AccZ, GyroX, GyroY, GyroZ, AccAngleX, AccAngleY, GyroAngleX, GyroAngleY, GyroZ, AngleX, AngleY, AngleZ");
