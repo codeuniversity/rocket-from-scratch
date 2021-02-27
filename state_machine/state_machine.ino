@@ -187,7 +187,7 @@ void update_sensors() {
 
   double temperatureMS = MS5611.getTemperature();
   double pressure = MS5611.getPressure();
-  double heightTP = calcHeightTP(temperatureMS, pressure);
+  double heightTP = calc_height(temperatureMS, pressure);
   //double heightAcc = calcHeightAcc(upwardsAcc);
   double upwardsAcc = mpu6050.getAccX();
 
@@ -221,8 +221,10 @@ void update_sensors() {
   LOG("Wrote sensor data to file");
 }
 
-double calcHeightTP(double temp, double pressure) {
-    return ((pow((pressure / 1013.25), (1/5.257)) - 1) * (temp + 273.15) / 0.0065);
+float calc_height(float temp, float pressure) {
+  const float P0 = 1013.25; // Average Pressure at sea level
+
+  return ((pow((P0 / pressure), (1/5.257)) - 1) * (-1) * (temp + 273.15)) / 0.0065;
 }
 
 // set status-LED based on state of flight
