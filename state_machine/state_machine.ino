@@ -54,6 +54,17 @@ struct Data {
   int height;
 };
 
+struct Kalman {
+  double varHeight = 0.158;  // noice variance determined using excel and reading samples of raw sensor data
+  double varProcess = 1e-8;
+  double pred_est_cov= 0.0;
+  double Kalman_Gain = 0.0;
+  double est_cov = 1.0;
+  double mesurement_estimate_t_minus = 0.0;
+  double Zp = 0.0;
+  double mesurement_estimate = 0.0;
+};
+
 
 /* GLOBALS */
 // data object to read from
@@ -117,6 +128,7 @@ void setup_sensors() {
 void loop() {
   static void * (* state) (void) = boot;
   update_sensors();
+  
   state = ((void * (*) (void)) state) ();
   set_led(STATE);
   delay(10);
