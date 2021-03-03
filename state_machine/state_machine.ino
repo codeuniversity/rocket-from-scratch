@@ -55,6 +55,18 @@ struct Data {
 } data;
 
 
+struct KalmanFilter {
+   double varHeight = 0.158;  // noice variance determined using excel and reading samples of raw sensor data
+   double varProcess = 1e-8;
+   double pred_est_cov= 0.0;
+   double Kalman_Gain = 0.0;
+   double est_cov = 1.0;
+   double mesurement_estimate_t_minus = 0.0;
+   double Zp = 0.0;
+   double mesurement_estimate_height = 0.0;
+ } kalmanFilter;
+
+
 /* GLOBALS */
 // data object to read from
 Data data;
@@ -118,6 +130,7 @@ void setup_sensors() {
 void loop() {
   static void * (* state) (void) = boot;
   update_sensors();
+  kalman_estimate_height();
   state = (void * (*) (void)) state ();
   set_led(STATE);
   delay(10);
@@ -142,7 +155,8 @@ void * flight() {
   return (void *) fall;
 }
 void * fall() {
-  if (data.height > 10) return (void *) fall;
+  if (kalmanFilter.mesurement_estimate_height > 10) return (void *) fall;
+  //if (data.height > 10) return (void *) fall;
   STATE = State::Land;
   LOG("Eject parachute. Start 'Chute'");
   return (void *) chute;
@@ -221,6 +235,19 @@ void update_sensors() {
   }
   LOG("Wrote sensor data to file");
 }
+
+float kalman_estimate_height() {
+
+  kalmanFilter.pred_est_cov = kalmanFilter.est_cov + kalmanFilter.varProcess;
+  kalmanFilter.Kalman_Gain = kalmanFilter.pred_est_cov/(kalmanFilter.pred_est_cov + kalmanFilter.varHeight);
+  kalmanFilter.est_cov = (1-kalmanFilter.Kalman_Gain)*kalmanFilter.pred_est_cov;
+  kalmanFilter.mesurement_estimate_t_minus = kalmanFilter.mesurement_estimate_height;
+  kalmanFilter.Zp = kalmanFilter.mesurement_estimate_t_minus;
+  kalmanFilter.mesurement_estimate_height = kalmanFilter.Kalman_Gain*(data.height-kalmanFilter.Zp)+kalmanFilter.mesurement_estimate_t_minus;
+
+  return kalmanFilter.mesurement_estimate_height;
+}
+
 
 float calc_height(float temp, float pressure) {
   const float P0 = 1013.25; // Average Pressure at sea level
