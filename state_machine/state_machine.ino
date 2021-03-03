@@ -1,5 +1,5 @@
-// #include <SPI.h>
-// #include <SD.h>
+ #include <SPI.h>
+ #include <SD.h>
 
 #include <MPU6050_tockn.h>
 #include <MS5611.h>
@@ -19,8 +19,8 @@ enum class State {
 } STATE;
 
 // // global FILE-objects for SD access
-// File log_file;
-// File data_file;
+ File log_file;
+ File data_file;
 
 // sensor
 MPU6050 mpu6050(Wire);
@@ -52,7 +52,7 @@ void setup() {
   Serial.begin(9600);
 
   setup_led();
-  // setup_sd();
+  setup_sd();
   setup_sensors();
 }
 
@@ -176,22 +176,29 @@ void setup_led() {
   pinMode(3, OUTPUT); // blue
 }
 
-// // connect to SD and create File-objects
-// void setup_sd() {
-//   const String DATA_FILE = "data.csv";
-//   const String LOG_FILE = "log.txt";
-//   const int SD_PORT = 10;
+//  connect to SD and create File-objects
+void setup_sd() {
+  const String DATA_FILE = "-data.csv";
+  const String LOG_FILE = "-log.txt";
+  const int SD_PORT = 10;
 
-//   Serial.print("Initializing SD card...");
-//   if (!SD.begin(SD_PORT)) {
-//     Serial.println("SD initialization failed!");
-//     STATE = State::Error;
-//   }
-//   print_log("SD initialization done.");
+  Serial.print("Initializing SD card...");
+  if (!SD.begin(SD_PORT)) {
+    Serial.println("SD initialization failed!");
+    while (true) {}
+  }
+  Serial.println("SD initialization done.");
 
-//   data_file = SD.open(DATA_FILE, FILE_WRITE);
-//   log_file = SD.open(LOG_FILE, FILE_WRITE);
-// }
+  File number_file = SD.open("fileidx.txt", FILE_WRITE);
+  int pos = number_file.position();
+  number_file.write('e');
+  number_file.close();
+  
+  data_file = SD.open(pos + DATA_FILE, FILE_WRITE);
+  log_file = SD.open(pos + LOG_FILE, FILE_WRITE);
+
+  Serial.print("wrote files with index " + String(pos));
+}
 
 void setup_sensors() {
   print_log("MS5611 ");
