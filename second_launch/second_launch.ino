@@ -51,6 +51,17 @@ struct Data {
   float height;
 } data;
 
+struct KalmanFilter {
+     double varHeight = 0.158;  // noice variance determined using excel and reading samples of raw sensor data
+     double varProcess = 1e-8;
+     double pred_est_cov= 0.0;
+     double Kalman_Gain = 0.0;
+     double est_cov = 1.0;
+     double mesurement_estimate_t_minus = 0.0;
+     double Zp = 0.0;
+     double mesurement_estimate_height = 0.0;
+   } kalmanFilter;
+
 void setup() {
   Serial.begin(9600);
 
@@ -61,7 +72,7 @@ void setup() {
 
 void loop() {
   update_sensors();
-  delay(10);
+  kalman_estimate_height();
 
   // if emergency() {
   //   ...
@@ -85,7 +96,8 @@ void loop() {
       }
       break;
     case State::Fall:
-      if (data.height <= 10) {
+      //if (data.height <= 10) {
+      if (kalmanFilter.mesurement_estimate_height <= 10) {
         STATE = State::Chute;
         print_log("Eject parachute. Start \"Chute\"");
       }
@@ -245,3 +257,15 @@ void setup_sensors() {
     
   print_data("Time, TempMPU, TempMS, Pressure, heightTP, AccX, AccY, AccZ, GyroX, GyroY, GyroZ, AccAngleX, AccAngleY, GyroAngleX, GyroAngleY, GyroZ, AngleX, AngleY, AngleZ");
 }
+
+float kalman_estimate_height() {
+
+    kalmanFilter.pred_est_cov = kalmanFilter.est_cov + kalmanFilter.varProcess;
+    kalmanFilter.Kalman_Gain = kalmanFilter.pred_est_cov/(kalmanFilter.pred_est_cov + kalmanFilter.varHeight);
+    kalmanFilter.est_cov = (1-kalmanFilter.Kalman_Gain)*kalmanFilter.pred_est_cov;
+    kalmanFilter.mesurement_estimate_t_minus = kalmanFilter.mesurement_estimate_height;
+    kalmanFilter.Zp = kalmanFilter.mesurement_estimate_t_minus;
+    kalmanFilter.mesurement_estimate_height = kalmanFilter.Kalman_Gain*(data.height-kalmanFilter.Zp)+kalmanFilter.mesurement_estimate_t_minus;
+
+    return kalmanFilter.mesurement_estimate_height;
+  }
