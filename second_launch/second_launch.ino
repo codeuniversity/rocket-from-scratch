@@ -52,7 +52,6 @@ struct Data {
 } data;
 
 void setup() {
-  // TODO: Figure out if we need this, does it help to leave out?
   Serial.begin(9600);
 
   setup_led();
@@ -61,7 +60,6 @@ void setup() {
 }
 
 void loop() {
-<<<<<<< HEAD:second_launch/second_launch.ino
   update_sensors();
   delay(10);
 
@@ -120,19 +118,13 @@ void write_data(double const * data, int size) {
 }
 
 // print one logging statement to logfile and serial
-void print_log(String const & msg) {
-  print_impl(log_file, msg, ": ");
-}
-
-void print_impl(File file, String const & msg, String const & sep) {
-  // add timestamp to message
-
-  // print to serial
+void print_log(String && msg) {
+  // print to serial monitor
   Serial.println(msg);
 
   // print to file
   file.print(millis());
-  file.print(sep);
+  file.print(": ");
   file.print(msg);
   file.flush();
 }
@@ -192,19 +184,19 @@ float calc_height(float temp, float pressure) {
   return ((pow((P0 / pressure), (1/5.257)) - 1) * (-1) * (temp + 273.15)) / 0.0065;
 }
 
-// TODO: Fix the rgb pin order
+// TODO: check if pins (i.e., colours) are correct
 // set status-LED based on state of flight
 void set_led(State state) {
   switch (state) {
     case State::Ready:
-      analogWrite(3, 0);
-      analogWrite(5, 255);
       analogWrite(6, 0);
+      analogWrite(5, 255);
+      analogWrite(3, 0);
       break;
     case State::Error:
-      analogWrite(3, 0);
-      analogWrite(5, 0);
       analogWrite(6, 255);
+      analogWrite(5, 0);
+      analogWrite(3, 0);
       break;
   }
 }
