@@ -19,8 +19,8 @@ enum class State {
 } STATE;
 
 // global FILE-objects for SD access
- File log_file;
- File data_file;
+ File LOG_FILE;
+ File DATA_FILE;
 
 // sensor
 MPU6050 mpu6050(Wire);
@@ -117,16 +117,16 @@ void loop() {
 
 void write_data(double const * data, int size) {
   Serial.print(millis());
-  data_file.print(millis());
+  DATA_FILE.print(millis());
   for (int i = 0; i < size; i++) {
     Serial.print(',');
-    data_file.print(',');
+    DATA_FILE.print(',');
     Serial.print(data[i]);
-    data_file.print(data[i]);
+    DATA_FILE.print(data[i]);
   }
   Serial.println();
-  data_file.println();
-  data_file.flush();
+  DATA_FILE.println();
+  DATA_FILE.flush();
 }
 
 // print one logging statement to logfile and serial
@@ -135,10 +135,10 @@ void print_log(String && msg) {
   Serial.println(msg);
 
   // print to file
-  log_file.print(millis());
-  log_file.print(": ");
-  log_file.print(msg);
-  log_file.flush();
+  LOG_FILE.print(millis());
+  LOG_FILE.print(": ");
+  LOG_FILE.print(msg);
+  LOG_FILE.flush();
 }
 
 // read one datapoint, filter bad values, do precalculations and log datapoint
@@ -221,8 +221,8 @@ void setup_led() {
 
 // connect to SD and create File-objects
 void setup_sd() {
-  String DATA_FILE = "-data.csv";
-  String LOG_FILE = "-log.txt";
+  String data_file = "-data.csv";
+  String log_file = "-log.txt";
   // TODO: Is this pin correct?
   const int SD_PORT = 10;
 
@@ -238,13 +238,13 @@ void setup_sd() {
   number_file.write('e');
   number_file.close();
 
-  DATA_FILE = pos + DATA_FILE;
-  LOG_FILE = pos + LOG_FILE;
+  data_file = pos + data_file;
+  log_file = pos + log_file;
 
-  data_file = SD.open(DATA_FILE, FILE_WRITE);
-  log_file = SD.open(LOG_FILE, FILE_WRITE);
+  DATA_FILE = SD.open(data_file, FILE_WRITE);
+  LOG_FILE = SD.open(log_file, FILE_WRITE);
 
-  Serial.println(DATA_FILE + " " + LOG_FILE);
+  Serial.println(data_file + " " + log_file);
 }
 
 void setup_sensors() {
@@ -255,8 +255,8 @@ void setup_sensors() {
   // TODO: replace this with setGyroOffset
   mpu6050.calcGyroOffsets(true);
 
-  data_file.println("Time, TempMPU, TempMS, Pressure, heightTP, AccX, AccY, AccZ, GyroX, GyroY, GyroZ, AccAngleX, AccAngleY, GyroAngleX, GyroAngleY, GyroZ, AngleX, AngleY, AngleZ");
-  data_file.flush();
+  DATA_FILE.println("Time, TempMPU, TempMS, Pressure, heightTP, AccX, AccY, AccZ, GyroX, GyroY, GyroZ, AccAngleX, AccAngleY, GyroAngleX, GyroAngleY, GyroZ, AngleX, AngleY, AngleZ");
+  DATA_FILE.flush();
 }
 
 float kalman_estimate_height() {
