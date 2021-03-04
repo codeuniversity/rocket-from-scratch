@@ -11,7 +11,7 @@
 // print one logging statement to logfile and serial
 #define LOG(msg) {		\
   Serial.println(msg);          \
-  log_file.print(millis());	    \
+  log_file.print(millis());	\
   log_file.print(": ");         \
   log_file.print(msg);          \
   log_file.flush();             \
@@ -52,7 +52,7 @@ struct Data {
 
   // height in m
   int height;
-};
+} data;
 
 struct Kalman {
   double varHeight = 0.158;  // noice variance determined using excel and reading samples of raw sensor data
@@ -106,6 +106,7 @@ void setup_sd() {
   if (!SD.begin(SD_PORT)) {
     Serial.println("SD initialization failed!");
     STATE = State::Error;
+    error();
   }
   LOG("SD initialization done.");
 
@@ -121,15 +122,15 @@ void setup_sensors() {
     mpu6050.calcGyroOffsets(true);
     Serial.println("Done");
     
-    data_file.println("Time, TempMPU, TempMS, Pressure, heightTP, heightAcc, AccX, AccY, AccZ, GyroX, GyroY, GyroZ, AccAngleX, AccAngleY, GyroAngleX, GyroAngleY, GyroZ, AngleX, AngleY, AngleZ");
+    data_file.println("Time, TempMPU, TempMS, Pressure, heightTP, AccX, AccY, AccZ, GyroX, GyroY, GyroZ, AccAngleX, AccAngleY, GyroAngleX, GyroAngleY, GyroZ, AngleX, AngleY, AngleZ");
 }
 
 /* LOOP */
 void loop() {
   static void * (* state) (void) = boot;
   update_sensors();
-  
-  state = ((void * (*) (void)) state) ();
+
+  state = (void * (*) (void)) state ();
   set_led(STATE);
   delay(10);
 }
