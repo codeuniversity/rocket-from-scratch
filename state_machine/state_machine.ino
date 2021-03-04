@@ -70,13 +70,13 @@ void loop() {
       set_led(STATE);
       print_log("Ready for liftoff! Start \"Ready\"");
     case State::Ready:
-      if (data.accZ >= 240) {
+      if (data.acc.z >= 240) {
         STATE = State::Flight;
         print_log("Detected liftoff. Start \"Flight\"");
       }
       break;
     case State::Flight:
-      if (data.accZ <= -240) {
+      if (data.acc.z <= -240) {
         STATE = State::Fall;
         print_log("Detected apogee. Start \"Fall\"");
       }
@@ -88,7 +88,7 @@ void loop() {
       }
       break;
     case State::Chute:
-      if (data.accZ <= -240) {
+      if (data.acc.z <= -240) {
         STATE = State::Land;
         print_log("Detected landing. Start \"Land\"");
       }
@@ -130,7 +130,7 @@ Data read_sensors() {
 
   int err = MS5611.read();
   if (err != MS5611_READ_OK) {
-    Serial.print("Error in read: "); Serial.println(e);
+    Serial.print("Error in read: "); Serial.println(err);
   } else {
     data.height = calc_height(MS5611.getTemperature(), MS5611.getPressure());
   }
@@ -140,7 +140,7 @@ Data read_sensors() {
   data.acc.z = mpu6050.getAccZ();
 
   print_data(
-    String(data.accX) + ", " + String(data.accY) + ", " + String(data.accZ) + ", " +
+    String(data.acc.x) + ", " + String(data.acc.y) + ", " + String(data.acc.z) + ", " +
     // String(data.velX) + ", " + String(data.velY) + ", " + String(data.velZ) + ", " +
     String(data.height)
   );
@@ -178,8 +178,8 @@ void setup_led() {
 
 //  connect to SD and create File-objects
 void setup_sd() {
-  const String DATA_FILE = "-data.csv";
-  const String LOG_FILE = "-log.txt";
+  String DATA_FILE = "-data.csv";
+  String LOG_FILE = "-log.txt";
   const int SD_PORT = 10;
 
   Serial.print("Initializing SD card...");
@@ -193,11 +193,14 @@ void setup_sd() {
   int pos = number_file.position();
   number_file.write('e');
   number_file.close();
-  
-  data_file = SD.open(pos + DATA_FILE, FILE_WRITE);
-  log_file = SD.open(pos + LOG_FILE, FILE_WRITE);
 
-  Serial.print("wrote files with index " + String(pos));
+  DATA_FILE = pos + DATA_FILE;
+  LOG_FILE = pos + LOG_FILE;
+  
+  data_file = SD.open(DATA_FILE, FILE_WRITE);
+  log_file = SD.open(LOG_FILE, FILE_WRITE);
+
+  Serial.println(DATA_FILE + " " + LOG_FILE);
 }
 
 void setup_sensors() {
