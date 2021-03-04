@@ -52,15 +52,15 @@ struct Data {
 } data;
 
 struct KalmanFilter {
-     double varHeight = 0.158;  // noice variance determined using excel and reading samples of raw sensor data
-     double varProcess = 1e-8;
-     double pred_est_cov= 0.0;
-     double Kalman_Gain = 0.0;
-     double est_cov = 1.0;
-     double mesurement_estimate_t_minus = 0.0;
-     double Zp = 0.0;
-     double mesurement_estimate_height = 0.0;
-   } kalmanFilter;
+  double varHeight = 0.158;  // noice variance determined using excel and reading samples of raw sensor data
+  double varProcess = 1e-8;
+  double pred_est_cov= 0.0;
+  double Kalman_Gain = 0.0;
+  double est_cov = 1.0;
+  double mesurement_estimate_t_minus = 0.0;
+  double Zp = 0.0;
+  double mesurement_estimate_height = 0.0;
+} kalmanFilter;
 
 void setup() {
   Serial.begin(9600);
@@ -72,7 +72,6 @@ void setup() {
 
 void loop() {
   update_sensors();
-  kalman_estimate_height();
 
   // if emergency() {
   //   ...
@@ -164,12 +163,15 @@ void update_sensors() {
 
   data.height = heightTP;
 
+  kalman_estimate_height();
+
   {
     double const data[] = {
       mpu6050.getTemp(),
       temperatureMS,
       pressure,
       heightTP,
+      kalmanFilter.mesurement_estimate_height,
       upwardsAcc,
       mpu6050.getAccY(),
       mpu6050.getAccZ(),
@@ -185,7 +187,7 @@ void update_sensors() {
       mpu6050.getAngleY(),
       mpu6050.getAngleZ()
     };
-    write_data(data, 18);
+    write_data(data, 19);
   }
   print_log("Wrote sensor data to file");
 }
@@ -255,7 +257,7 @@ void setup_sensors() {
   // TODO: replace this with setGyroOffset
   mpu6050.calcGyroOffsets(true);
 
-  DATA_FILE.println("Time, TempMPU, TempMS, Pressure, heightTP, AccX, AccY, AccZ, GyroX, GyroY, GyroZ, AccAngleX, AccAngleY, GyroAngleX, GyroAngleY, GyroZ, AngleX, AngleY, AngleZ");
+  DATA_FILE.println("Time, TempMPU, TempMS, Pressure, heightTP, heightKalman, AccX, AccY, AccZ, GyroX, GyroY, GyroZ, AccAngleX, AccAngleY, GyroAngleX, GyroAngleY, GyroZ, AngleX, AngleY, AngleZ");
   DATA_FILE.flush();
 }
 
