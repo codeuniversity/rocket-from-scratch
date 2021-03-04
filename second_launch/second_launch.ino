@@ -102,24 +102,24 @@ void loop() {
 
 // print one datapoint to csv-file and serial
 void print_data(String data_str) {
-  print_impl(data_str, ", ");
+  print_impl(data_file, data_str, ", ");
 }
 
 // print one logging statement to logfile and serial
 void print_log(String msg) {
-  print_impl(msg, ": ");
+  print_impl(log_file, msg, ": ");
 }
 
-void print_impl(String msg, String sep) {
+void print_impl(File file, String msg, String sep) {
   // add timestamp to message
   msg = String(millis()) + sep + msg;
 
   // print to serial
   Serial.println(msg);
 
-  // // print to file
-  // file.println(msg);
-  // file.flush();
+  // print to file
+  file.println(msg);
+  file.flush();
 }
 
 // read one datapoint, filter bad values, do precalculations and log datapoint
