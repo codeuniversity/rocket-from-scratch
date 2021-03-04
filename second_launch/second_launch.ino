@@ -1,7 +1,7 @@
  #include <SPI.h>
  #include <SD.h>
 
-/* #include <MPU6050_tockn.h> */
+#include <MPU6050_tockn.h>
 #include <MS5611.h>
 #include <Wire.h>
 
@@ -23,7 +23,7 @@ enum class State {
  File DATA_FILE;
 
 // sensor
-/* MPU6050 mpu6050(Wire); */
+MPU6050 mpu6050(Wire);
 MS5611 MS5611(0x77);   // 0x76 = CSB to VCC; 0x77 = CSB to GND
 
 // TODO: keep a number of data points in memory, but not more
@@ -31,7 +31,7 @@ MS5611 MS5611(0x77);   // 0x76 = CSB to VCC; 0x77 = CSB to GND
 // `Data` represents one datapoint, measured by our sensors
 struct Data {
   // time in ms
-  int time;
+  long time;
 
   // acceleration in m/s²
   struct Acc {
@@ -69,6 +69,7 @@ void loop() {
   //   ...
   // }
 
+  // uncommenting this adds 8% of memory usage
   /* switch (STATE) { */
   /*   case State::Boot: */
   /*     STATE = State::Ready; */
@@ -87,8 +88,7 @@ void loop() {
   /*     } */
   /*     break; */
   /*   case State::Fall: */
-  /*     //if (datapoint.height <= 10) { */
-  /*     if (kalmanFilter.mesurement_estimate_height <= 10) { */
+  /*     if (datapoint.filtered_height <= 10) { */
   /*       STATE = State::Chute; */
   /*       print_log("Eject parachute. Start \"Chute\""); */
   /*     } */
@@ -139,7 +139,7 @@ void print_log(String && msg) {
 
 // read one datapoint, filter bad values, do precalculations and log datapoint
 void update_sensors() {
-  /* mpu6050.update(); */
+  mpu6050.update();
 
   int err = MS5611.read();
   if (err != MS5611_READ_OK) {
@@ -151,14 +151,14 @@ void update_sensors() {
   datapoint.time = millis();
   /* datapoint.acc.x = mpu6050.getAccX(); */
   /* datapoint.acc.y = mpu6050.getAccY(); */
-  /* datapoint.acc.z = mpu6050.getAccZ(); */
+  datapoint.acc.z = mpu6050.getAccZ();
 
   datapoint.temperatureMS = MS5611.getTemperature();
   datapoint.pressure = MS5611.getPressure();
   datapoint.height = calc_height(datapoint.temperatureMS, datapoint.pressure);
 
   print_data();
-  print_log("Wrote sensor data to file");
+  /* print_log("Wrote sensor data to file"); */
 }
 
 float calc_height(float temp, float pressure) {
@@ -222,9 +222,10 @@ void setup_sensors() {
   print_log("MS5611 ");
   print_log(MS5611.begin() ? "found" : "not found");
 
-  /* mpu6050.begin(); */
-  // TODO: replace this with setGyroOffset
+  mpu6050.begin();
   /* mpu6050.calcGyroOffsets(true); */
+  // only relevant to the GY-86
+  mpu6050.setGyroOffsets(-0.83,-1.56,0.15);
 
   /* DATA_FILE.println("Time, TempMPU, TempMS, Pressure, heightTP, heightKalman, AccX, AccY, AccZ, GyroX, GyroY, GyroZ, AccAngleX, AccAngleY, GyroAngleX, GyroAngleY, GyroZ, AngleX, AngleY, AngleZ"); */
   DATA_FILE.println("Time, AccZ, Pressure, TempMS, Height, KalHeight");
