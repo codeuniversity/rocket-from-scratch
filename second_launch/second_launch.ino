@@ -28,6 +28,7 @@ MS5611 MS5611(0x77);   // 0x76 = CSB to VCC; 0x77 = CSB to GND
 
 // TODO: keep a number of data points in memory, but not more
 
+<<<<<<< HEAD
 /* // `Data` represents one datapoint, measured by our sensors */
 /* struct Data { */
 /*   // time in ms */
@@ -73,6 +74,32 @@ struct KalmanFilter {
      float mesurement_estimate_height = 0.0;
    } kalmanFilter;
 >>>>>>> 6bfdb71 (feat(sensors): create stripped version that works)
+=======
+// `Data` represents one datapoint, measured by our sensors
+struct Data {
+  // time in ms
+  int time;
+
+  // acceleration in m/s²
+  struct Acc {
+    /* float x; */
+    /* float y; */
+    float z;
+  } acc;
+
+  // pressure in mbar
+  float pressure;
+
+  // temperature of the MS5611 sensor in Celsius
+  float temperatureMS;
+
+  // height in m
+  float height;
+
+  // height filtered through kalman filter
+  float filtered_height;
+} datapoint;
+>>>>>>> b958259 (refactor(sensors): make data storage more consistent)
 
 void setup() {
   Serial.begin(9600);
@@ -85,9 +112,13 @@ void setup() {
 void loop() {
   update_sensors();
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   /* kalman_estimate_height(); */
 >>>>>>> 6bfdb71 (feat(sensors): create stripped version that works)
+=======
+  kalman_estimate_height();
+>>>>>>> b958259 (refactor(sensors): make data storage more consistent)
 
   // if emergency() {
   //   ...
@@ -130,15 +161,20 @@ void loop() {
   /* } */
 }
 
-void print_data(double const * data, int size) {
-  Serial.print(millis());
-  DATA_FILE.print(millis());
-  for (int i = 0; i < size; i++) {
-    Serial.print(',');
-    DATA_FILE.print(',');
-    Serial.print(data[i]);
-    DATA_FILE.print(data[i]);
-  }
+void print_data() {
+  Serial.print(datapoint.time);Serial.print(",");
+  DATA_FILE.print(datapoint.time);DATA_FILE.print(",");
+  Serial.print(datapoint.acc.z);Serial.print(",");
+  DATA_FILE.print(datapoint.acc.z);DATA_FILE.print(",");
+  Serial.print(datapoint.pressure);Serial.print(",");
+  DATA_FILE.print(datapoint.pressure);DATA_FILE.print(",");
+  Serial.print(datapoint.temperatureMS);Serial.print(",");
+  DATA_FILE.print(datapoint.temperatureMS);DATA_FILE.print(",");
+  Serial.print(datapoint.height);Serial.print(",");
+  DATA_FILE.print(datapoint.height);DATA_FILE.print(",");
+  Serial.print(datapoint.filtered_height);Serial.print(",");
+  DATA_FILE.print(datapoint.filtered_height);DATA_FILE.print(",");
+
   Serial.println();
   DATA_FILE.println();
   DATA_FILE.flush();
@@ -167,39 +203,16 @@ void update_sensors() {
     return;
   }
 
-  /* datapoint.time = millis(); */
+  datapoint.time = millis();
   /* datapoint.acc.x = mpu6050.getAccX(); */
   /* datapoint.acc.y = mpu6050.getAccY(); */
   /* datapoint.acc.z = mpu6050.getAccZ(); */
 
-  double temperatureMS = MS5611.getTemperature();
-  double pressure = MS5611.getPressure();
-  double heightTP = calc_height(temperatureMS, pressure);
-  /* double upwardsAcc = mpu6050.getAccX(); */
+  datapoint.temperatureMS = MS5611.getTemperature();
+  datapoint.pressure = MS5611.getPressure();
+  datapoint.height = calc_height(datapoint.temperatureMS, datapoint.pressure);
 
-  /* datapoint.height = heightTP; */
-
-  double const dataarray[] = {
-    /* mpu6050.getTemp(), */
-    temperatureMS,
-    pressure,
-    heightTP
-    /* upwardsAcc, */
-    /* mpu6050.getAccY(), */
-    /* mpu6050.getAccZ(), */
-    /* mpu6050.getGyroX(), */
-    /* mpu6050.getGyroY(), */
-    /* mpu6050.getGyroZ(), */
-    /* mpu6050.getAccAngleX(), */
-    /* mpu6050.getAccAngleY(), */
-    /* mpu6050.getGyroAngleX(), */
-    /* mpu6050.getGyroAngleY(), */
-    /* mpu6050.getGyroAngleZ(), */
-    /* mpu6050.getAngleX(), */
-    /* mpu6050.getAngleY(), */
-    /* mpu6050.getAngleZ() */
-  };
-  print_data(dataarray, 3);
+  print_data();
   print_log("Wrote sensor data to file");
 }
 
@@ -268,18 +281,27 @@ void setup_sensors() {
   // TODO: replace this with setGyroOffset
   /* mpu6050.calcGyroOffsets(true); */
 
-  DATA_FILE.println("Time, TempMPU, TempMS, Pressure, heightTP, heightKalman, AccX, AccY, AccZ, GyroX, GyroY, GyroZ, AccAngleX, AccAngleY, GyroAngleX, GyroAngleY, GyroZ, AngleX, AngleY, AngleZ");
+  /* DATA_FILE.println("Time, TempMPU, TempMS, Pressure, heightTP, heightKalman, AccX, AccY, AccZ, GyroX, GyroY, GyroZ, AccAngleX, AccAngleY, GyroAngleX, GyroAngleY, GyroZ, AngleX, AngleY, AngleZ"); */
+  DATA_FILE.println("Time, AccZ, Pressure, TempMS, Height, KalHeight");
   DATA_FILE.flush();
 }
 
-/* float kalman_estimate_height() { */
+void kalman_estimate_height() {
+  static float varHeight = 0.158;  // noice variance determined using excel and reading samples of raw sensor data
+  static float varProcess = 1e-8;
+  static float pred_est_cov= 0.0;
+  static float Kalman_Gain = 0.0;
+  static float est_cov = 1.0;
+  static float mesurement_estimate_t_minus = 0.0;
+  static float Zp = 0.0;
+  static float mesurement_estimate_height = 0.0;
 
-/*     kalmanFilter.pred_est_cov = kalmanFilter.est_cov + kalmanFilter.varProcess; */
-/*     kalmanFilter.Kalman_Gain = kalmanFilter.pred_est_cov/(kalmanFilter.pred_est_cov + kalmanFilter.varHeight); */
-/*     kalmanFilter.est_cov = (1-kalmanFilter.Kalman_Gain)*kalmanFilter.pred_est_cov; */
-/*     kalmanFilter.mesurement_estimate_t_minus = kalmanFilter.mesurement_estimate_height; */
-/*     kalmanFilter.Zp = kalmanFilter.mesurement_estimate_t_minus; */
-/*     kalmanFilter.mesurement_estimate_height = kalmanFilter.Kalman_Gain*(datapoint.height-kalmanFilter.Zp)+kalmanFilter.mesurement_estimate_t_minus; */
+  pred_est_cov = est_cov + varProcess;
+  Kalman_Gain = pred_est_cov/(pred_est_cov + varHeight);
+  est_cov = (1-Kalman_Gain)*pred_est_cov;
+  mesurement_estimate_t_minus = mesurement_estimate_height;
+  Zp = mesurement_estimate_t_minus;
+  mesurement_estimate_height = Kalman_Gain*(datapoint.height-Zp)+mesurement_estimate_t_minus;
 
-/*     return kalmanFilter.mesurement_estimate_height; */
-/*   } */
+  datapoint.filtered_height = mesurement_estimate_height;
+}
