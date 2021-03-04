@@ -135,10 +135,10 @@ void print_log(String && msg) {
   Serial.println(msg);
 
   // print to file
-  file.print(millis());
-  file.print(": ");
-  file.print(msg);
-  file.flush();
+  log_file.print(millis());
+  log_file.print(": ");
+  log_file.print(msg);
+  log_file.flush();
 }
 
 // read one datapoint, filter bad values, do precalculations and log datapoint
@@ -240,7 +240,7 @@ void setup_sd() {
 
   DATA_FILE = pos + DATA_FILE;
   LOG_FILE = pos + LOG_FILE;
-  
+
   data_file = SD.open(DATA_FILE, FILE_WRITE);
   log_file = SD.open(LOG_FILE, FILE_WRITE);
 
@@ -254,8 +254,9 @@ void setup_sensors() {
   mpu6050.begin();
   // TODO: replace this with setGyroOffset
   mpu6050.calcGyroOffsets(true);
-    
-  print_data("Time, TempMPU, TempMS, Pressure, heightTP, AccX, AccY, AccZ, GyroX, GyroY, GyroZ, AccAngleX, AccAngleY, GyroAngleX, GyroAngleY, GyroZ, AngleX, AngleY, AngleZ");
+
+  data_file.println("Time, TempMPU, TempMS, Pressure, heightTP, AccX, AccY, AccZ, GyroX, GyroY, GyroZ, AccAngleX, AccAngleY, GyroAngleX, GyroAngleY, GyroZ, AngleX, AngleY, AngleZ");
+  data_file.flush();
 }
 
 float kalman_estimate_height() {
