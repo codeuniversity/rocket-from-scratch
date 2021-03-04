@@ -28,53 +28,6 @@ MS5611 MS5611(0x77);   // 0x76 = CSB to VCC; 0x77 = CSB to GND
 
 // TODO: keep a number of data points in memory, but not more
 
-<<<<<<< HEAD
-/* // `Data` represents one datapoint, measured by our sensors */
-/* struct Data { */
-/*   // time in ms */
-/*   int time; */
-
-/*   // acceleration in m/s² */
-/*   struct Acc { */
-/*     float x; */
-/*     float y; */
-/*     float z; */
-/*   } acc; */
-
-/*   // velocity in m/s */
-/*   struct Vel { */
-/*     float x; */
-/*     float y; */
-/*     float z; */
-/*   } vel; */
-
-/*   // height in m */
-/*   float height; */
-/* } datapoint; */
-
-struct KalmanFilter {
-<<<<<<< HEAD
-  double varHeight = 0.158;  // noice variance determined using excel and reading samples of raw sensor data
-  double varProcess = 1e-8;
-  double pred_est_cov= 0.0;
-  double Kalman_Gain = 0.0;
-  double est_cov = 1.0;
-  double mesurement_estimate_t_minus = 0.0;
-  double Zp = 0.0;
-  double mesurement_estimate_height = 0.0;
-} kalmanFilter;
-=======
-     float varHeight = 0.158;  // noice variance determined using excel and reading samples of raw sensor data
-     float varProcess = 1e-8;
-     float pred_est_cov= 0.0;
-     float Kalman_Gain = 0.0;
-     float est_cov = 1.0;
-     float mesurement_estimate_t_minus = 0.0;
-     float Zp = 0.0;
-     float mesurement_estimate_height = 0.0;
-   } kalmanFilter;
->>>>>>> 6bfdb71 (feat(sensors): create stripped version that works)
-=======
 // `Data` represents one datapoint, measured by our sensors
 struct Data {
   // time in ms
@@ -99,7 +52,6 @@ struct Data {
   // height filtered through kalman filter
   float filtered_height;
 } datapoint;
->>>>>>> b958259 (refactor(sensors): make data storage more consistent)
 
 void setup() {
   Serial.begin(9600);
@@ -111,14 +63,7 @@ void setup() {
 
 void loop() {
   update_sensors();
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-  /* kalman_estimate_height(); */
->>>>>>> 6bfdb71 (feat(sensors): create stripped version that works)
-=======
   kalman_estimate_height();
->>>>>>> b958259 (refactor(sensors): make data storage more consistent)
 
   // if emergency() {
   //   ...
