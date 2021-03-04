@@ -1,7 +1,7 @@
  #include <SPI.h>
  #include <SD.h>
 
-#include <MPU6050_tockn.h>
+/* #include <MPU6050_tockn.h> */
 #include <MS5611.h>
 #include <Wire.h>
 
@@ -23,35 +23,36 @@ enum class State {
  File DATA_FILE;
 
 // sensor
-MPU6050 mpu6050(Wire);
+/* MPU6050 mpu6050(Wire); */
 MS5611 MS5611(0x77);   // 0x76 = CSB to VCC; 0x77 = CSB to GND
 
 // TODO: keep a number of data points in memory, but not more
 
-// `Data` represents one datapoint, measured by our sensors
-struct Data {
-  // time in ms
-  int time;
+/* // `Data` represents one datapoint, measured by our sensors */
+/* struct Data { */
+/*   // time in ms */
+/*   int time; */
 
-  // acceleration in m/s²
-  struct Acc {
-    float x;
-    float y;
-    float z;
-  } acc;
+/*   // acceleration in m/s² */
+/*   struct Acc { */
+/*     float x; */
+/*     float y; */
+/*     float z; */
+/*   } acc; */
 
-  // velocity in m/s
-  struct Vel {
-    float x;
-    float y;
-    float z;
-  } vel;
+/*   // velocity in m/s */
+/*   struct Vel { */
+/*     float x; */
+/*     float y; */
+/*     float z; */
+/*   } vel; */
 
-  // height in m
-  float height;
-} data;
+/*   // height in m */
+/*   float height; */
+/* } datapoint; */
 
 struct KalmanFilter {
+<<<<<<< HEAD
   double varHeight = 0.158;  // noice variance determined using excel and reading samples of raw sensor data
   double varProcess = 1e-8;
   double pred_est_cov= 0.0;
@@ -61,6 +62,17 @@ struct KalmanFilter {
   double Zp = 0.0;
   double mesurement_estimate_height = 0.0;
 } kalmanFilter;
+=======
+     float varHeight = 0.158;  // noice variance determined using excel and reading samples of raw sensor data
+     float varProcess = 1e-8;
+     float pred_est_cov= 0.0;
+     float Kalman_Gain = 0.0;
+     float est_cov = 1.0;
+     float mesurement_estimate_t_minus = 0.0;
+     float Zp = 0.0;
+     float mesurement_estimate_height = 0.0;
+   } kalmanFilter;
+>>>>>>> 6bfdb71 (feat(sensors): create stripped version that works)
 
 void setup() {
   Serial.begin(9600);
@@ -72,49 +84,53 @@ void setup() {
 
 void loop() {
   update_sensors();
+<<<<<<< HEAD
+=======
+  /* kalman_estimate_height(); */
+>>>>>>> 6bfdb71 (feat(sensors): create stripped version that works)
 
   // if emergency() {
   //   ...
   // }
 
-  switch (STATE) {
-    case State::Boot:
-      STATE = State::Ready;
-      set_led(STATE);
-      print_log("Ready for liftoff! Start \"Ready\"");
-    case State::Ready:
-      if (data.acc.z >= 240) {
-        STATE = State::Flight;
-        print_log("Detected liftoff. Start \"Flight\"");
-      }
-      break;
-    case State::Flight:
-      if (data.acc.z <= -240) {
-        STATE = State::Fall;
-        print_log("Detected apogee. Start \"Fall\"");
-      }
-      break;
-    case State::Fall:
-      //if (data.height <= 10) {
-      if (kalmanFilter.mesurement_estimate_height <= 10) {
-        STATE = State::Chute;
-        print_log("Eject parachute. Start \"Chute\"");
-      }
-      break;
-    case State::Chute:
-      if (data.acc.z <= -240) {
-        STATE = State::Land;
-        print_log("Detected landing. Start \"Land\"");
-      }
-      break;
-    case State::Land:
-    case State::Error:
-      set_led(STATE);
-      while (true) {}
-  }
+  /* switch (STATE) { */
+  /*   case State::Boot: */
+  /*     STATE = State::Ready; */
+  /*     set_led(STATE); */
+  /*     print_log("Ready for liftoff! Start \"Ready\""); */
+  /*   case State::Ready: */
+  /*     if (datapoint.acc.z >= 240) { */
+  /*       STATE = State::Flight; */
+  /*       print_log("Detected liftoff. Start \"Flight\""); */
+  /*     } */
+  /*     break; */
+  /*   case State::Flight: */
+  /*     if (datapoint.acc.z <= -240) { */
+  /*       STATE = State::Fall; */
+  /*       print_log("Detected apogee. Start \"Fall\""); */
+  /*     } */
+  /*     break; */
+  /*   case State::Fall: */
+  /*     //if (datapoint.height <= 10) { */
+  /*     if (kalmanFilter.mesurement_estimate_height <= 10) { */
+  /*       STATE = State::Chute; */
+  /*       print_log("Eject parachute. Start \"Chute\""); */
+  /*     } */
+  /*     break; */
+  /*   case State::Chute: */
+  /*     if (datapoint.acc.z <= -240) { */
+  /*       STATE = State::Land; */
+  /*       print_log("Detected landing. Start \"Land\""); */
+  /*     } */
+  /*     break; */
+  /*   case State::Land: */
+  /*   case State::Error: */
+  /*     set_led(STATE); */
+  /*     while (true) {} */
+  /* } */
 }
 
-void write_data(double const * data, int size) {
+void print_data(double const * data, int size) {
   Serial.print(millis());
   DATA_FILE.print(millis());
   for (int i = 0; i < size; i++) {
@@ -136,59 +152,54 @@ void print_log(String && msg) {
   // print to file
   LOG_FILE.print(millis());
   LOG_FILE.print(": ");
-  LOG_FILE.print(msg);
+  LOG_FILE.println(msg);
   LOG_FILE.flush();
 }
 
 // read one datapoint, filter bad values, do precalculations and log datapoint
 void update_sensors() {
-  mpu6050.update();
+  /* mpu6050.update(); */
 
   int err = MS5611.read();
   if (err != MS5611_READ_OK) {
-    Serial.print("Error in read: "); Serial.println(err);
-  } else {
-    data.height = calc_height(MS5611.getTemperature(), MS5611.getPressure());
+    print_log("Error in read:");
+    print_log("err");
+    return;
   }
 
-  data.time = millis();
-  data.acc.x = mpu6050.getAccX();
-  data.acc.y = mpu6050.getAccY();
-  data.acc.z = mpu6050.getAccZ();
+  /* datapoint.time = millis(); */
+  /* datapoint.acc.x = mpu6050.getAccX(); */
+  /* datapoint.acc.y = mpu6050.getAccY(); */
+  /* datapoint.acc.z = mpu6050.getAccZ(); */
 
   double temperatureMS = MS5611.getTemperature();
   double pressure = MS5611.getPressure();
   double heightTP = calc_height(temperatureMS, pressure);
-  double upwardsAcc = mpu6050.getAccX();
+  /* double upwardsAcc = mpu6050.getAccX(); */
 
-  data.height = heightTP;
+  /* datapoint.height = heightTP; */
 
-  kalman_estimate_height();
-
-  {
-    double const data[] = {
-      mpu6050.getTemp(),
-      temperatureMS,
-      pressure,
-      heightTP,
-      kalmanFilter.mesurement_estimate_height,
-      upwardsAcc,
-      mpu6050.getAccY(),
-      mpu6050.getAccZ(),
-      mpu6050.getGyroX(),
-      mpu6050.getGyroY(),
-      mpu6050.getGyroZ(),
-      mpu6050.getAccAngleX(),
-      mpu6050.getAccAngleY(),
-      mpu6050.getGyroAngleX(),
-      mpu6050.getGyroAngleY(),
-      mpu6050.getGyroAngleZ(),
-      mpu6050.getAngleX(),
-      mpu6050.getAngleY(),
-      mpu6050.getAngleZ()
-    };
-    write_data(data, 19);
-  }
+  double const dataarray[] = {
+    /* mpu6050.getTemp(), */
+    temperatureMS,
+    pressure,
+    heightTP
+    /* upwardsAcc, */
+    /* mpu6050.getAccY(), */
+    /* mpu6050.getAccZ(), */
+    /* mpu6050.getGyroX(), */
+    /* mpu6050.getGyroY(), */
+    /* mpu6050.getGyroZ(), */
+    /* mpu6050.getAccAngleX(), */
+    /* mpu6050.getAccAngleY(), */
+    /* mpu6050.getGyroAngleX(), */
+    /* mpu6050.getGyroAngleY(), */
+    /* mpu6050.getGyroAngleZ(), */
+    /* mpu6050.getAngleX(), */
+    /* mpu6050.getAngleY(), */
+    /* mpu6050.getAngleZ() */
+  };
+  print_data(dataarray, 3);
   print_log("Wrote sensor data to file");
 }
 
@@ -253,22 +264,22 @@ void setup_sensors() {
   print_log("MS5611 ");
   print_log(MS5611.begin() ? "found" : "not found");
 
-  mpu6050.begin();
+  /* mpu6050.begin(); */
   // TODO: replace this with setGyroOffset
-  mpu6050.calcGyroOffsets(true);
+  /* mpu6050.calcGyroOffsets(true); */
 
   DATA_FILE.println("Time, TempMPU, TempMS, Pressure, heightTP, heightKalman, AccX, AccY, AccZ, GyroX, GyroY, GyroZ, AccAngleX, AccAngleY, GyroAngleX, GyroAngleY, GyroZ, AngleX, AngleY, AngleZ");
   DATA_FILE.flush();
 }
 
-float kalman_estimate_height() {
+/* float kalman_estimate_height() { */
 
-    kalmanFilter.pred_est_cov = kalmanFilter.est_cov + kalmanFilter.varProcess;
-    kalmanFilter.Kalman_Gain = kalmanFilter.pred_est_cov/(kalmanFilter.pred_est_cov + kalmanFilter.varHeight);
-    kalmanFilter.est_cov = (1-kalmanFilter.Kalman_Gain)*kalmanFilter.pred_est_cov;
-    kalmanFilter.mesurement_estimate_t_minus = kalmanFilter.mesurement_estimate_height;
-    kalmanFilter.Zp = kalmanFilter.mesurement_estimate_t_minus;
-    kalmanFilter.mesurement_estimate_height = kalmanFilter.Kalman_Gain*(data.height-kalmanFilter.Zp)+kalmanFilter.mesurement_estimate_t_minus;
+/*     kalmanFilter.pred_est_cov = kalmanFilter.est_cov + kalmanFilter.varProcess; */
+/*     kalmanFilter.Kalman_Gain = kalmanFilter.pred_est_cov/(kalmanFilter.pred_est_cov + kalmanFilter.varHeight); */
+/*     kalmanFilter.est_cov = (1-kalmanFilter.Kalman_Gain)*kalmanFilter.pred_est_cov; */
+/*     kalmanFilter.mesurement_estimate_t_minus = kalmanFilter.mesurement_estimate_height; */
+/*     kalmanFilter.Zp = kalmanFilter.mesurement_estimate_t_minus; */
+/*     kalmanFilter.mesurement_estimate_height = kalmanFilter.Kalman_Gain*(datapoint.height-kalmanFilter.Zp)+kalmanFilter.mesurement_estimate_t_minus; */
 
-    return kalmanFilter.mesurement_estimate_height;
-  }
+/*     return kalmanFilter.mesurement_estimate_height; */
+/*   } */
