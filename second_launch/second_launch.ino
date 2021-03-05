@@ -36,10 +36,17 @@ struct Data {
   // time in ms
   long time;
 
+  // orientation in degrees/s²
+  struct Gyro {
+    float x;
+    float y;
+    float z;
+  } gyro;
+
   // acceleration in m/s²
   struct Acc {
-    /* float x; */
-    /* float y; */
+    float x;
+    float y;
     float z;
   } acc;
 
@@ -122,7 +129,7 @@ void setup_sensors() {
   mpu6050.setGyroOffsets(-0.83,-1.56,0.15);
 
   /* DATA_FILE.println("Time, TempMPU, TempMS, Pressure, heightTP, heightKalman, AccX, AccY, AccZ, GyroX, GyroY, GyroZ, AccAngleX, AccAngleY, GyroAngleX, GyroAngleY, GyroZ, AngleX, AngleY, AngleZ"); */
-  DATA_FILE.println("Time, AccZ, Pressure, TempMS, Height, KalHeight");
+  DATA_FILE.println("Time, GyroX, GyroY, GyroZ, AccX, AccY, AccZ, Pressure, TempMS, Height, KalHeight");
   DATA_FILE.flush();
 }
 
@@ -178,6 +185,11 @@ void loop() {
 // prints all data from the Data struct to file and serial
 void print_data() {
   PRINT_VALUE(datapoint.time
+  PRINT_VALUE(datapoint.gyro.x);
+  PRINT_VALUE(datapoint.gyro.y);
+  PRINT_VALUE(datapoint.gyro.z);
+  PRINT_VALUE(datapoint.acc.x);
+  PRINT_VALUE(datapoint.acc.y);
   PRINT_VALUE(datapoint.acc.z);
   PRINT_VALUE(datapoint.pressure);
   PRINT_VALUE(datapoint.temperatureMS);
@@ -228,9 +240,12 @@ void update_sensors() {
   }
 
   datapoint.time = millis();
-  /* datapoint.acc.x = mpu6050.getAccX(); */
-  /* datapoint.acc.y = mpu6050.getAccY(); */
+  datapoint.acc.x = mpu6050.getAccX();
+  datapoint.acc.y = mpu6050.getAccY();
   datapoint.acc.z = mpu6050.getAccZ();
+  datapoint.gyro.x = mpu6050.getGyroX();
+  datapoint.gyro.y = mpu6050.getGyroY();
+  datapoint.gyro.z = mpu6050.getGyroZ();
 
   datapoint.temperatureMS = MS5611.getTemperature();
   datapoint.pressure = MS5611.getPressure();
