@@ -1,9 +1,19 @@
- #include <SPI.h>
- #include <SD.h>
+#include <SPI.h>
+#include <SD.h>
 
 #include <MPU6050_tockn.h>
 #include <MS5611.h>
 #include <Wire.h>
+
+#define PRINT_VALUE(value)                       \
+  Serial.print(value); Serial.print(",");        \
+  DATA_FILE.print(value); DATA_FILE.print(",");
+
+#define PRINTLN_VALUE(value)                     \
+  Serial.println(value);                         \
+  DATA_FILE.println(value);                      \
+  DATA_FILE.flush();
+
 
 // `State` represents all states of the flight and has an additional "Boot" and "Error" state
 enum class State {
@@ -106,22 +116,12 @@ void loop() {
 }
 
 void print_data() {
-  Serial.print(datapoint.time);Serial.print(",");
-  DATA_FILE.print(datapoint.time);DATA_FILE.print(",");
-  Serial.print(datapoint.acc.z);Serial.print(",");
-  DATA_FILE.print(datapoint.acc.z);DATA_FILE.print(",");
-  Serial.print(datapoint.pressure);Serial.print(",");
-  DATA_FILE.print(datapoint.pressure);DATA_FILE.print(",");
-  Serial.print(datapoint.temperatureMS);Serial.print(",");
-  DATA_FILE.print(datapoint.temperatureMS);DATA_FILE.print(",");
-  Serial.print(datapoint.height);Serial.print(",");
-  DATA_FILE.print(datapoint.height);DATA_FILE.print(",");
-  Serial.print(datapoint.filtered_height);Serial.print(",");
-  DATA_FILE.print(datapoint.filtered_height);DATA_FILE.print(",");
-
-  Serial.println();
-  DATA_FILE.println();
-  DATA_FILE.flush();
+  PRINT_VALUE(datapoint.time
+  PRINT_VALUE(datapoint.acc.z);
+  PRINT_VALUE(datapoint.pressure);
+  PRINT_VALUE(datapoint.temperatureMS);
+  PRINT_VALUE(datapoint.height);
+  PRINTLN_VALUE(datapoint.filtered_height);
 }
 
 // print one logging statement to logfile and serial
