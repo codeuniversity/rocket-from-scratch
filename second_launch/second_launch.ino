@@ -50,7 +50,7 @@ struct Data {
 
 struct KalmanFilter {
      double varHeight = 0.158;  // noice variance determined using excel and reading samples of raw sensor data
-     double varProcess = 1e-8;
+     double varProcess = 1e-10;
      double pred_est_cov= 0.0;
      double Kalman_Gain = 0.0;
      double est_cov = 1.0;
