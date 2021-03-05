@@ -1,3 +1,4 @@
+/* HEADERS */
 #include <SPI.h>
 #include <SD.h>
 
@@ -5,6 +6,7 @@
 #include <MS5611.h>
 #include <Wire.h>
 
+/* MACROS */
 #define PRINT_VALUE(value)                       \
   Serial.print(value); Serial.print(",");        \
   DATA_FILE.print(value); DATA_FILE.print(",");
@@ -15,6 +17,7 @@
   DATA_FILE.flush();
 
 
+/* DATA STRUCTURES */
 // `State` represents all states of the flight and has an additional "Boot" and "Error" state
 enum class State {
   Boot,
@@ -27,16 +30,6 @@ enum class State {
   // something went wrong
   Error,
 } STATE;
-
-// global FILE-objects for SD access
- File LOG_FILE;
- File DATA_FILE;
-
-// sensor
-MPU6050 mpu6050(Wire);
-MS5611 MS5611(0x77);   // 0x76 = CSB to VCC; 0x77 = CSB to GND
-
-// TODO: keep a number of data points in memory, but not more
 
 // `Data` represents one datapoint, measured by our sensors
 struct Data {
@@ -63,126 +56,26 @@ struct Data {
   float filtered_height;
 } datapoint;
 
+
+/* GLOBALBS */
+// global FILE-objects for SD access
+ File LOG_FILE;
+ File DATA_FILE;
+
+// sensor
+MPU6050 mpu6050(Wire);
+MS5611 MS5611(0x77);   // 0x76 = CSB to VCC; 0x77 = CSB to GND
+
+// TODO: keep a number of data points in memory, but not more
+
+
+/* SETUP */
 void setup() {
   Serial.begin(9600);
 
   setup_led();
   setup_sd();
   setup_sensors();
-}
-
-void loop() {
-  update_sensors();
-
-  // if emergency() {
-  //   ...
-  // }
-
-  // uncommenting this adds 8% of memory usage
-  /* switch (STATE) { */
-  /*   case State::Boot: */
-  /*     STATE = State::Ready; */
-  /*     set_led(STATE); */
-  /*     print_log("Ready for liftoff! Start \"Ready\""); */
-  /*   case State::Ready: */
-  /*     if (datapoint.acc.z >= 240) { */
-  /*       STATE = State::Flight; */
-  /*       print_log("Detected liftoff. Start \"Flight\""); */
-  /*     } */
-  /*     break; */
-  /*   case State::Flight: */
-  /*     if (datapoint.acc.z <= -240) { */
-  /*       STATE = State::Fall; */
-  /*       print_log("Detected apogee. Start \"Fall\""); */
-  /*     } */
-  /*     break; */
-  /*   case State::Fall: */
-  /*     if (datapoint.filtered_height <= 10) { */
-  /*       STATE = State::Chute; */
-  /*       print_log("Eject parachute. Start \"Chute\""); */
-  /*     } */
-  /*     break; */
-  /*   case State::Chute: */
-  /*     if (datapoint.acc.z <= -240) { */
-  /*       STATE = State::Land; */
-  /*       print_log("Detected landing. Start \"Land\""); */
-  /*     } */
-  /*     break; */
-  /*   case State::Land: */
-  /*   case State::Error: */
-  /*     set_led(STATE); */
-  /*     while (true) {} */
-  /* } */
-}
-
-void print_data() {
-  PRINT_VALUE(datapoint.time
-  PRINT_VALUE(datapoint.acc.z);
-  PRINT_VALUE(datapoint.pressure);
-  PRINT_VALUE(datapoint.temperatureMS);
-  PRINT_VALUE(datapoint.height);
-  PRINTLN_VALUE(datapoint.filtered_height);
-}
-
-// print one logging statement to logfile and serial
-void print_log(String && msg) {
-  // print to serial monitor
-  Serial.println(msg);
-
-  // print to file
-  LOG_FILE.print(millis());
-  LOG_FILE.print(": ");
-  LOG_FILE.println(msg);
-  LOG_FILE.flush();
-}
-
-// read one datapoint, filter bad values, do precalculations and log datapoint
-void update_sensors() {
-  mpu6050.update();
-
-  int err = MS5611.read();
-  if (err != MS5611_READ_OK) {
-    print_log("Error in read:");
-    print_log("err");
-    return;
-  }
-
-  datapoint.time = millis();
-  /* datapoint.acc.x = mpu6050.getAccX(); */
-  /* datapoint.acc.y = mpu6050.getAccY(); */
-  datapoint.acc.z = mpu6050.getAccZ();
-
-  datapoint.temperatureMS = MS5611.getTemperature();
-  datapoint.pressure = MS5611.getPressure();
-  datapoint.height = calc_height(datapoint.temperatureMS, datapoint.pressure);
-
-  kalman_estimate_height();
-
-  print_data();
-  /* print_log("Wrote sensor data to file"); */
-}
-
-float calc_height(float temp, float pressure) {
-  const float P0 = 1013.25; // Average Pressure at sea level
-
-  return ((pow((P0 / pressure), (1/5.257)) - 1) * (-1) * (temp + 273.15)) / 0.0065;
-}
-
-// TODO: check if pins (i.e., colours) are correct
-// set status-LED based on state of flight
-void set_led(State state) {
-  switch (state) {
-    case State::Ready:
-      analogWrite(6, 0);
-      analogWrite(5, 255);
-      analogWrite(3, 0);
-      break;
-    case State::Error:
-      analogWrite(6, 255);
-      analogWrite(5, 0);
-      analogWrite(3, 0);
-      break;
-  }
 }
 
 void setup_led() {
@@ -233,6 +126,128 @@ void setup_sensors() {
   DATA_FILE.flush();
 }
 
+
+
+/* LOOOOP */
+void loop() {
+  update_sensors();
+
+  // if emergency() {
+  //   ...
+  // }
+
+  // uncommenting this adds 8% of memory usage
+  /* switch (STATE) { */
+  /*   case State::Boot: */
+  /*     STATE = State::Ready; */
+  /*     set_led(STATE); */
+  /*     print_log("Ready for liftoff! Start \"Ready\""); */
+  /*   case State::Ready: */
+  /*     if (datapoint.acc.z >= 240) { */
+  /*       STATE = State::Flight; */
+  /*       print_log("Detected liftoff. Start \"Flight\""); */
+  /*     } */
+  /*     break; */
+  /*   case State::Flight: */
+  /*     if (datapoint.acc.z <= -240) { */
+  /*       STATE = State::Fall; */
+  /*       print_log("Detected apogee. Start \"Fall\""); */
+  /*     } */
+  /*     break; */
+  /*   case State::Fall: */
+  /*     if (datapoint.filtered_height <= 10) { */
+  /*       STATE = State::Chute; */
+  /*       print_log("Eject parachute. Start \"Chute\""); */
+  /*     } */
+  /*     break; */
+  /*   case State::Chute: */
+  /*     if (datapoint.acc.z <= -240) { */
+  /*       STATE = State::Land; */
+  /*       print_log("Detected landing. Start \"Land\""); */
+  /*     } */
+  /*     break; */
+  /*   case State::Land: */
+  /*   case State::Error: */
+  /*     set_led(STATE); */
+  /*     while (true) {} */
+  /* } */
+}
+
+
+/* HELPERS */
+// prints all data from the Data struct to file and serial
+void print_data() {
+  PRINT_VALUE(datapoint.time
+  PRINT_VALUE(datapoint.acc.z);
+  PRINT_VALUE(datapoint.pressure);
+  PRINT_VALUE(datapoint.temperatureMS);
+  PRINT_VALUE(datapoint.height);
+  PRINTLN_VALUE(datapoint.filtered_height);
+}
+
+// print one logging statement to logfile and serial
+void print_log(String && msg) {
+  // print to serial monitor
+  Serial.println(msg);
+
+  // print to file
+  LOG_FILE.print(millis());
+  LOG_FILE.print(": ");
+  LOG_FILE.println(msg);
+  LOG_FILE.flush();
+}
+
+// TODO: check if pins (i.e., colours) are correct
+// set status-LED based on state of flight
+void set_led(State state) {
+  switch (state) {
+    case State::Ready:
+      analogWrite(6, 0);
+      analogWrite(5, 255);
+      analogWrite(3, 0);
+      break;
+    case State::Error:
+      analogWrite(6, 255);
+      analogWrite(5, 0);
+      analogWrite(3, 0);
+      break;
+  }
+}
+
+
+/* SENSORS */
+// read one datapoint, filter bad values, do precalculations and log datapoint
+void update_sensors() {
+  mpu6050.update();
+
+  int err = MS5611.read();
+  if (err != MS5611_READ_OK) {
+    print_log("Error in read:");
+    print_log("err");
+    return;
+  }
+
+  datapoint.time = millis();
+  /* datapoint.acc.x = mpu6050.getAccX(); */
+  /* datapoint.acc.y = mpu6050.getAccY(); */
+  datapoint.acc.z = mpu6050.getAccZ();
+
+  datapoint.temperatureMS = MS5611.getTemperature();
+  datapoint.pressure = MS5611.getPressure();
+  datapoint.height = calc_height(datapoint.temperatureMS, datapoint.pressure);
+
+  kalman_estimate_height();
+
+  print_data();
+  /* print_log("Wrote sensor data to file"); */
+}
+
+float calc_height(float temp, float pressure) {
+  const float P0 = 1013.25; // Average Pressure at sea level
+
+  return ((pow((P0 / pressure), (1/5.257)) - 1) * (-1) * (temp + 273.15)) / 0.0065;
+}
+
 void kalman_estimate_height() {
   static float varHeight = 0.158;  // noice variance determined using excel and reading samples of raw sensor data
   static float varProcess = 1e-8;
@@ -252,3 +267,4 @@ void kalman_estimate_height() {
 
   datapoint.filtered_height = mesurement_estimate_height;
 }
+
