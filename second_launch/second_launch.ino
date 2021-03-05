@@ -63,7 +63,6 @@ void setup() {
 
 void loop() {
   update_sensors();
-  kalman_estimate_height();
 
   // if emergency() {
   //   ...
@@ -156,6 +155,8 @@ void update_sensors() {
   datapoint.temperatureMS = MS5611.getTemperature();
   datapoint.pressure = MS5611.getPressure();
   datapoint.height = calc_height(datapoint.temperatureMS, datapoint.pressure);
+
+  kalman_estimate_height();
 
   print_data();
   /* print_log("Wrote sensor data to file"); */
