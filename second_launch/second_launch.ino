@@ -184,7 +184,7 @@ void loop() {
 /* HELPERS */
 // prints all data from the Data struct to file and serial
 void print_data() {
-  PRINT_VALUE(datapoint.time
+  PRINT_VALUE(datapoint.time);
   PRINT_VALUE(datapoint.gyro.x);
   PRINT_VALUE(datapoint.gyro.y);
   PRINT_VALUE(datapoint.gyro.z);
