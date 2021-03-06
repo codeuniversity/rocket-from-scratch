@@ -18,18 +18,6 @@
 
 
 /* DATA STRUCTURES */
-// `State` represents all states of the flight and has an additional "Boot" and "Error" state
-enum class State {
-  Boot,
-  Ready,
-  Flight,
-  Fall,
-  Chute,
-  Land,
-
-  // something went wrong
-  Error,
-} STATE;
 
 // `Data` represents one datapoint, measured by our sensors
 struct Data {
@@ -73,7 +61,11 @@ struct Data {
 MPU6050 mpu6050(Wire);
 MS5611 MS5611(0x77);   // 0x76 = CSB to VCC; 0x77 = CSB to GND
 
-// TODO: keep a number of data points in memory, but not more
+// pins
+const int SD_CS_PORT = PA4;
+const int LED_RED_PIN = PA2;
+const int LED_GREEN_PIN = PA1;
+const int LED_BLUE_PIN = PA0;
 
 
 /* SETUP */
@@ -83,12 +75,14 @@ void setup() {
   setup_led();
   setup_sd();
   setup_sensors();
+
+  set_led(0, 255, 0);
 }
 
 void setup_led() {
-  pinMode(6, OUTPUT); // red
-  pinMode(5, OUTPUT); // green
-  pinMode(3, OUTPUT); // blue
+  pinMode(LED_RED_PIN, OUTPUT); // red
+  pinMode(LED_GREEN_PIN, OUTPUT); // green
+  pinMode(LED_BLUE_PIN, OUTPUT); // blue
 }
 
 // connect to SD and create File-objects
@@ -96,11 +90,11 @@ void setup_sd() {
   String data_file = "-data.csv";
   String log_file = "-log.txt";
   // TODO: Is this pin correct?
-  const int SD_PORT = 10;
 
   Serial.print("Initializing SD card...");
-  if (!SD.begin(SD_PORT)) {
+  if (!SD.begin(SD_CS_PORT)) {
     Serial.println("SD initialization failed!");
+    set_led(255, 0, 0);
     while (true) {}
   }
   Serial.println("SD initialization done.");
@@ -138,46 +132,6 @@ void setup_sensors() {
 /* LOOOOP */
 void loop() {
   update_sensors();
-
-  // if emergency() {
-  //   ...
-  // }
-
-  // uncommenting this adds 8% of memory usage
-  /* switch (STATE) { */
-  /*   case State::Boot: */
-  /*     STATE = State::Ready; */
-  /*     set_led(STATE); */
-  /*     print_log("Ready for liftoff! Start \"Ready\""); */
-  /*   case State::Ready: */
-  /*     if (datapoint.acc.z >= 240) { */
-  /*       STATE = State::Flight; */
-  /*       print_log("Detected liftoff. Start \"Flight\""); */
-  /*     } */
-  /*     break; */
-  /*   case State::Flight: */
-  /*     if (datapoint.acc.z <= -240) { */
-  /*       STATE = State::Fall; */
-  /*       print_log("Detected apogee. Start \"Fall\""); */
-  /*     } */
-  /*     break; */
-  /*   case State::Fall: */
-  /*     if (datapoint.filtered_height <= 10) { */
-  /*       STATE = State::Chute; */
-  /*       print_log("Eject parachute. Start \"Chute\""); */
-  /*     } */
-  /*     break; */
-  /*   case State::Chute: */
-  /*     if (datapoint.acc.z <= -240) { */
-  /*       STATE = State::Land; */
-  /*       print_log("Detected landing. Start \"Land\""); */
-  /*     } */
-  /*     break; */
-  /*   case State::Land: */
-  /*   case State::Error: */
-  /*     set_led(STATE); */
-  /*     while (true) {} */
-  /* } */
 }
 
 
@@ -209,21 +163,10 @@ void print_log(String && msg) {
   LOG_FILE.flush();
 }
 
-// TODO: check if pins (i.e., colours) are correct
-// set status-LED based on state of flight
-void set_led(State state) {
-  switch (state) {
-    case State::Ready:
-      analogWrite(6, 0);
-      analogWrite(5, 255);
-      analogWrite(3, 0);
-      break;
-    case State::Error:
-      analogWrite(6, 255);
-      analogWrite(5, 0);
-      analogWrite(3, 0);
-      break;
-  }
+void set_led(int red, int green, int blue) {
+  analogWrite(LED_RED_PIN, red);
+  analogWrite(LED_GREEN_PIN, green);
+  analogWrite(LED_BLUE_PIN, blue);
 }
 
 
