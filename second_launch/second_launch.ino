@@ -203,8 +203,8 @@ void update_sensors() {
 float calc_height(float temp, float pressure) {
   const float P0 = 1013.25; // Average Pressure at sea level
   //temporary solution
-  temp = 5.00;
-  return ((pow((P0 / pressure), (1/5.257)) - 1) * (-1) * (temp + 273.15)) / 0.0065;
+  temp = temp - 11;
+  return ((pow((P0 / pressure), (1/5.257)) - 1) * (temp + 273.15)) / 0.0065;
 }
 
 void kalman_estimate_height() {
