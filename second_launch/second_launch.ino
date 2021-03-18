@@ -201,9 +201,9 @@ void update_sensors() {
 }
 
 float calc_height(float temp, float pressure) {
-  const float P0 = 1013.25; // Average Pressure at sea level
-  //temporary solution
-  temp = temp - 11;
+  // change these on the day
+  const float P0 = 1019.5; // Sea level pressure in Berlin
+  temp = 5; // Temperature in Berlin
   return ((pow((P0 / pressure), (1/5.257)) - 1) * (temp + 273.15)) / 0.0065;
 }
 
