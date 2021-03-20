@@ -209,7 +209,7 @@ float calc_height(float temp, float pressure) {
 
 void kalman_estimate_height() {
   static float varHeight = 0.158;  // noice variance determined using excel and reading samples of raw sensor data
-  static float varProcess = 0;
+  static float varProcess = 1e-6;
   static float pred_est_cov= 0.0;
   static float Kalman_Gain = 0.0;
   static float est_cov = 1.0;
@@ -222,7 +222,8 @@ void kalman_estimate_height() {
   est_cov = (1-Kalman_Gain)*pred_est_cov;
   mesurement_estimate_t_minus = mesurement_estimate_height;
   Zp = mesurement_estimate_t_minus;
-  mesurement_estimate_height = Kalman_Gain*(datapoint.height-Zp)+mesurement_estimate_t_minus;
+  //mesurement_estimate_height = Kalman_Gain*(datapoint.height-Zp)+mesurement_estimate_t_minus;
+  mesurement_estimate_height = Kalman_Gain*(datapoint.height-Zp)+datapoint.height;
 
   datapoint.filtered_height = mesurement_estimate_height;
 }
