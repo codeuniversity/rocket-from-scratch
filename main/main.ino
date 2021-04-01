@@ -21,7 +21,7 @@ void setup_sensors() {
   mpu6050.begin();
   /* mpu6050.calcGyroOffsets(true); */
   // only relevant to the GY-86
-  mpu6050.setGyroOffsets(-0.83,-1.56,0.15);
+  mpu6050.setGyroOffsets(-0.83, -1.56, 0.15);
 
   /* DATA_FILE.println("Time, TempMPU, TempMS, Pressure, heightTP, heightKalman, AccX, AccY, AccZ, GyroX, GyroY, GyroZ, AccAngleX, AccAngleY, GyroAngleX, GyroAngleY, GyroZ, AngleX, AngleY, AngleZ"); */
   DATA_FILE.println("Time, GyroX, GyroY, GyroZ, AccX, AccY, AccZ, Pressure, TempMS, Height, KalHeight");
@@ -85,13 +85,13 @@ float calc_height(float temp, float pressure) {
   // change these on the day
   const float P0 = 1019.5; // Sea level pressure in Berlin
   temp = 5; // Temperature in Berlin
-  return ((pow((P0 / pressure), (1/5.257)) - 1) * (temp + 273.15)) / 0.0065;
+  return ((pow((P0 / pressure), (1 / 5.257)) - 1) * (temp + 273.15)) / 0.0065;
 }
 
 void kalman_estimate_height() {
   static float varHeight = 0.158;  // noice variance determined using excel and reading samples of raw sensor data
   static float varProcess = 1e-6;
-  static float pred_est_cov= 0.0;
+  static float pred_est_cov = 0.0;
   static float Kalman_Gain = 0.0;
   static float est_cov = 1.0;
   static float mesurement_estimate_t_minus = 0.0;
@@ -99,12 +99,12 @@ void kalman_estimate_height() {
   static float mesurement_estimate_height = 0.0;
 
   pred_est_cov = est_cov + varProcess;
-  Kalman_Gain = pred_est_cov/(pred_est_cov + varHeight);
-  est_cov = (1-Kalman_Gain)*pred_est_cov;
+  Kalman_Gain = pred_est_cov / (pred_est_cov + varHeight);
+  est_cov = (1 - Kalman_Gain) * pred_est_cov;
   mesurement_estimate_t_minus = mesurement_estimate_height;
   Zp = mesurement_estimate_t_minus;
   //mesurement_estimate_height = Kalman_Gain*(datapoint.height-Zp)+mesurement_estimate_t_minus;
-  mesurement_estimate_height = Kalman_Gain*(datapoint.height-Zp)+datapoint.height;
+  mesurement_estimate_height = Kalman_Gain * (datapoint.height - Zp) + datapoint.height;
 
   datapoint.filtered_height = mesurement_estimate_height;
 }
