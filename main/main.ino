@@ -2,9 +2,7 @@
 #include <SPI.h>
 #include <SD.h>
 
-#include <MPU6050_tockn.h>
-#include <MS5611.h>
-#include <Wire.h>
+#include "sensors.h"
 
 /* MACROS */
 #define PRINT_VALUE(value)                       \
@@ -15,41 +13,6 @@
   Serial.println(value);                         \
   DATA_FILE.println(value);                      \
   DATA_FILE.flush();
-
-
-/* DATA STRUCTURES */
-
-// `Data` represents one datapoint, measured by our sensors
-struct Data {
-  // time in ms
-  long time;
-
-  // orientation in degrees/s²
-  struct Gyro {
-    float x;
-    float y;
-    float z;
-  } gyro;
-
-  // acceleration in m/s²
-  struct Acc {
-    float x;
-    float y;
-    float z;
-  } acc;
-
-  // pressure in mbar
-  float pressure;
-
-  // temperature of the MS5611 sensor in Celsius
-  float temperatureMS;
-
-  // height in m
-  float height;
-
-  // height filtered through kalman filter
-  float filtered_height;
-} datapoint;
 
 
 /* GLOBALBS */
