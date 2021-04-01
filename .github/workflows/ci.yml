@@ -1,0 +1,22 @@
+on: ["push"]
+
+jobs:
+    arduino:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+            - uses: arduino/actions/libraries/compile-examples@master
+              with:
+                  fqbn: "stm32duino:STM32F1:genericSTM32F103C"
+                  platforms: |
+                      - name: "stm32duino:STM32F1"
+                        source-url: "http://dan.drown.org/stm32duino/package_STM32duino_index.json"
+                  sketch-paths: |
+                      - first_launch
+                      - second_launch
+                  libraries: |
+                      - name: MPU6050_tockn
+                      - name: MS5611
+                      - name: SD
+                      # SPI.h and Wire.h seem to be available per default
+                  enable-deltas-report: true
