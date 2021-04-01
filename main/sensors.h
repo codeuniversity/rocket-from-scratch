@@ -33,3 +33,6 @@ struct Data {
   // height filtered through kalman filter
   float filtered_height;
 } datapoint;
+
+MPU6050 mpu6050(Wire);
+MS5611 MS5611(0x77);   // 0x76 = CSB to VCC; 0x77 = CSB to GND

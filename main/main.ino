@@ -14,11 +14,6 @@
   DATA_FILE.flush();
 
 
-// sensor
-MPU6050 mpu6050(Wire);
-MS5611 MS5611(0x77);   // 0x76 = CSB to VCC; 0x77 = CSB to GND
-
-
 /* SETUP */
 void setup() {
   Serial.begin(9600);
@@ -29,8 +24,6 @@ void setup() {
 
   set_led(0, 255, 0);
 }
-
-
 
 // connect to SD and create File-objects
 void setup_sd() {
