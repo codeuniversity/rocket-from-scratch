@@ -1,6 +1,10 @@
+#pragma once
+
 #include <MPU6050_tockn.h>
 #include <MS5611.h>
 #include <Wire.h>
+
+#include "sd.h"
 
 // `Data` represents one datapoint, measured by our sensors
 struct Data {
