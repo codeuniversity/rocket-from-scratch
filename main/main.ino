@@ -1,8 +1,6 @@
 /* HEADERS */
-#include <SPI.h>
-#include <SD.h>
-
 #include "led.h"
+#include "sd.h"
 #include "sensors.h"
 
 /* MACROS */
@@ -16,16 +14,9 @@
   DATA_FILE.flush();
 
 
-/* GLOBALBS */
-// global FILE-objects for SD access
- File LOG_FILE;
- File DATA_FILE;
-
 // sensor
 MPU6050 mpu6050(Wire);
 MS5611 MS5611(0x77);   // 0x76 = CSB to VCC; 0x77 = CSB to GND
-
-const int SD_CS_PORT = PA4;
 
 
 /* SETUP */
