@@ -63,7 +63,7 @@ float calc_height(float temp, float pressure) {
 }
 
 void kalman_estimate_height() {
-  static float varHeight = 0.158;  // noice variance determined using excel and reading samples of raw sensor data
+  static float varHeight = 0.158;  // noise variance determined using excel and reading samples of raw sensor data
   static float varProcess = 1e-6;
   static float pred_est_cov = 0.0;
   static float Kalman_Gain = 0.0;
