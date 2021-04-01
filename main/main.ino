@@ -2,6 +2,7 @@
 #include <SPI.h>
 #include <SD.h>
 
+#include "led.h"
 #include "sensors.h"
 
 /* MACROS */
@@ -24,11 +25,7 @@
 MPU6050 mpu6050(Wire);
 MS5611 MS5611(0x77);   // 0x76 = CSB to VCC; 0x77 = CSB to GND
 
-// pins
 const int SD_CS_PORT = PA4;
-const int LED_RED_PIN = PA2;
-const int LED_GREEN_PIN = PA1;
-const int LED_BLUE_PIN = PA0;
 
 
 /* SETUP */
@@ -42,11 +39,7 @@ void setup() {
   set_led(0, 255, 0);
 }
 
-void setup_led() {
-  pinMode(LED_RED_PIN, OUTPUT); // red
-  pinMode(LED_GREEN_PIN, OUTPUT); // green
-  pinMode(LED_BLUE_PIN, OUTPUT); // blue
-}
+
 
 // connect to SD and create File-objects
 void setup_sd() {
@@ -125,13 +118,6 @@ void print_log(String && msg) {
   LOG_FILE.println(msg);
   LOG_FILE.flush();
 }
-
-void set_led(int red, int green, int blue) {
-  analogWrite(LED_RED_PIN, red);
-  analogWrite(LED_GREEN_PIN, green);
-  analogWrite(LED_BLUE_PIN, blue);
-}
-
 
 /* SENSORS */
 // read one datapoint, filter bad values, do precalculations and log datapoint
