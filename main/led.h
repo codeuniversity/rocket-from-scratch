@@ -1,3 +1,5 @@
+#pragma once
+
 const int LED_RED_PIN = PA2;
 const int LED_GREEN_PIN = PA1;
 const int LED_BLUE_PIN = PA0;
