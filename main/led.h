@@ -1,8 +1,8 @@
 #pragma once
 
-const int LED_RED_PIN = PA2;
-const int LED_GREEN_PIN = PA1;
-const int LED_BLUE_PIN = PA0;
+#define LED_RED_PIN PA2
+#define LED_GREEN_PIN PA1
+#define LED_BLUE_PIN PA0
 
 void setup_led() {
   pinMode(LED_RED_PIN, OUTPUT); // red
