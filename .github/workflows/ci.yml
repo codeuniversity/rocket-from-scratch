@@ -12,8 +12,7 @@ jobs:
                       - name: "stm32duino:STM32F1"
                         source-url: "http://dan.drown.org/stm32duino/package_STM32duino_index.json"
                   sketch-paths: |
-                      - first_launch
-                      - second_launch
+                      - main
                   libraries: |
                       - name: MPU6050_tockn
                       - name: MS5611
