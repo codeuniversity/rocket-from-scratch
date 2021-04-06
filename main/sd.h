@@ -5,6 +5,16 @@
 
 #define SD_CS_PORT PA4
 
+/* MACROS */
+#define PRINT_VALUE(value)                       \
+  Serial.print(value); Serial.print(",");        \
+  DATA_FILE.print(value); DATA_FILE.print(",");
+
+#define PRINTLN_VALUE(value)                     \
+  Serial.println(value);                         \
+  DATA_FILE.println(value);                      \
+  DATA_FILE.flush();
+
 // global FILE-objects for SD access
 File LOG_FILE;
 File DATA_FILE;
@@ -49,12 +59,3 @@ void print_log(String && msg) {
   LOG_FILE.flush();
 }
 
-/* MACROS */
-#define PRINT_VALUE(value)                       \
-  Serial.print(value); Serial.print(",");        \
-  DATA_FILE.print(value); DATA_FILE.print(",");
-
-#define PRINTLN_VALUE(value)                     \
-  Serial.println(value);                         \
-  DATA_FILE.println(value);                      \
-  DATA_FILE.flush();
