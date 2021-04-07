@@ -58,7 +58,7 @@ struct Data {
  File DATA_FILE;
 
 // sensor
-MPU6050 mpu6050(Wire);
+MPU6050 mpu6050(Wire, 0.1, 0.9);
 MS5611 MS5611(0x77);   // 0x76 = CSB to VCC; 0x77 = CSB to GND
 
 // pins
@@ -118,6 +118,7 @@ void setup_sensors() {
   print_log(MS5611.begin() ? "found" : "not found");
 
   mpu6050.begin();
+  mpu6050.accCoef = 0.16f;
   /* mpu6050.calcGyroOffsets(true); */
   // only relevant to the GY-86
   mpu6050.setGyroOffsets(-0.83,-1.56,0.15);
