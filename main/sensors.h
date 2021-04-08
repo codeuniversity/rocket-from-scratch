@@ -16,6 +16,9 @@ struct Data {
     float x;
     float y;
     float z;
+    float pitch;
+    float yaw;
+    float roll;
   } gyro;
 
   // acceleration in m/s²
@@ -99,7 +102,7 @@ void print_data() {
 }
 
 // read one datapoint, filter bad values, do precalculations and log datapoint
-void update_sensors() {
+Data update_sensors() {
   mpu6050.update();
 
   int err = MS5611.read();
@@ -116,6 +119,11 @@ void update_sensors() {
   datapoint.gyro.x = mpu6050.getGyroX();
   datapoint.gyro.y = mpu6050.getGyroY();
   datapoint.gyro.z = mpu6050.getGyroZ();
+  datapoint.gyro.pitch = mpu6050.getAngleX();
+  datapoint.gyro.yaw = mpu6050.getAngleZ();
+  datapoint.gyro.roll = mpu6050.getAngleY();
+  datapoint.gyro.y = mpu6050.getGyroY();
+  datapoint.gyro.z = mpu6050.getGyroZ();
 
   datapoint.temperatureMS = MS5611.getTemperature();
   datapoint.pressure = MS5611.getPressure();
@@ -125,4 +133,6 @@ void update_sensors() {
 
   print_data();
   /* print_log("Wrote sensor data to file"); */
+
+  return datapoint;
 }

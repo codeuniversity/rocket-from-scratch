@@ -1,0 +1,9 @@
+{
+    "sketch": "main/main.ino",
+    "port": "/dev/cu.usbmodem14201",
+    "board": "stm32duino:STM32F1:genericSTM32F103C",
+    "output": "../build",
+    "debugger": "stlink",
+    "intelliSenseGen": "global",
+    "configuration": "device_variant=STM32F103C8,upload_method=STLinkMethod,cpu_speed=speed_72mhz,opt=osstd"
+}

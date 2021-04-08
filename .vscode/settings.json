@@ -1,0 +1,14 @@
+{
+    "arduino.path": "/Applications",
+    "arduino.commandPath": "Contents/MacOS/Arduino",
+    "arduino.logLevel": "info",
+    "arduino.allowPDEFiletype": false,
+    "arduino.enableUSBDetection": true,
+    "arduino.disableTestingOpen": false,
+    "arduino.skipHeaderProvider": false,
+    "arduino.additionalUrls": [
+        "http://dan.drown.org/stm32duino/package_STM32duino_index.json",
+        "https://raw.githubusercontent.com/stm32duino/BoardManagerFiles/master/STM32/package_stm_index.json"
+    ],
+    "arduino.defaultBaudRate": 9600
+}
