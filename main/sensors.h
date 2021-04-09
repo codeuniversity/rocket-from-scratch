@@ -49,9 +49,9 @@ void setup_sensors() {
   print_log(MS5611.begin() ? "found" : "not found");
 
   mpu6050.begin();
-  /* mpu6050.calcGyroOffsets(true); */
+  mpu6050.calcGyroOffsets(true);
   // only relevant to the GY-86
-  mpu6050.setGyroOffsets(-0.83, -1.56, 0.15);
+  // mpu6050.setGyroOffsets(-0.83, -1.56, 0.15);
 
   /* DATA_FILE.println("Time, TempMPU, TempMS, Pressure, heightTP, heightKalman, AccX, AccY, AccZ, GyroX, GyroY, GyroZ, AccAngleX, AccAngleY, GyroAngleX, GyroAngleY, GyroZ, AngleX, AngleY, AngleZ"); */
   DATA_FILE.println("Time, GyroX, GyroY, GyroZ, AccX, AccY, AccZ, Pressure, TempMS, Height, KalHeight");
@@ -131,6 +131,6 @@ void update_sensors() {
 
   kalman_estimate_height();
 
-  print_data();
+  //print_data();
   /* print_log("Wrote sensor data to file"); */
 }
