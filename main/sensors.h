@@ -102,7 +102,7 @@ void print_data() {
 }
 
 // read one datapoint, filter bad values, do precalculations and log datapoint
-Data update_sensors() {
+void update_sensors() {
   mpu6050.update();
 
   int err = MS5611.read();
@@ -133,6 +133,4 @@ Data update_sensors() {
 
   print_data();
   /* print_log("Wrote sensor data to file"); */
-
-  return datapoint;
 }

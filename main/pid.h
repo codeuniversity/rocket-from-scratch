@@ -8,11 +8,11 @@
 
 class PID {
     public:
-        void Run(float input);
+        float Run(float input);
         void setTunings(float newKP, float newKI, float newKD);
         void setIterationDelay(int newTimeMillis);
         void setOutputLimits(float min, float max);
-        void setMode(int _mode);
+        //void setMode(int _mode);
         void setTarget(float _target);
         void setControllerDirection(int _direction);
 
@@ -34,11 +34,11 @@ class PID {
         int controllerDirection = PID_DIRECTION_DIRECT;
         bool isAuto = false;
 
-        void initialize();
+        //void initialize();
 };
 
-void PID::Run(input) {
-    if(!isAuto) return;
+float PID::Run(float input) {
+    //if(!isAuto){ return;
     
     unsigned long nowMillis = millis();
     int timeChange = (nowMillis - lastTimeMillis);
@@ -59,6 +59,8 @@ void PID::Run(input) {
         lastInput = input;
         lastTimeMillis = nowMillis;
     }
+
+    return output;
 }
 
 void PID::setTunings(float newKP, float newKI, float newKD){
@@ -97,18 +99,18 @@ void PID::setOutputLimits(float min, float max){
     if(integralTerm < outMin) integralTerm = outMin;
 }
 
-void PID::setMode(int _mode){
-    bool modeBool = (_mode == PID_MODE_AUTOMATIC);
-    if(modeBool == !isAuto) initialize(); //going from manual to auto
-    isAuto = modeBool;
-}
+//void PID::setMode(int _mode){
+//    bool modeBool = (_mode == PID_MODE_AUTOMATIC);
+//    if(modeBool == !isAuto) initialize(); //going from manual to auto
+//    isAuto = modeBool;
+//}
  
-void PID::initialize(){
-    lastInput = input;
-    integralTerm = output;
-    if(integralTerm > outMax) integralTerm = outMax;
-    if(integralTerm < outMin) integralTerm = outMin;
-}
+//void PID::initialize(){
+//    //lastInput = input;
+//    integralTerm = output;
+//    if(integralTerm > outMax) integralTerm = outMax;
+//    if(integralTerm < outMin) integralTerm = outMin;
+//}
 
 void PID::setTarget(float _target){
     target = _target;
