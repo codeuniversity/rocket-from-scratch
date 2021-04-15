@@ -23,11 +23,11 @@ void setup()
 {
   Serial.begin(9600);
 
-  setup_led();
+
   setup_sd();
   setup_sensors();
 
-  set_led(0, 255, 0);
+//  set_led(0, 255, 0); TODO implement LED setup
 }
 
 /* LOOOOP */
