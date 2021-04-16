@@ -20,7 +20,7 @@ File LOG_FILE;
 File DATA_FILE;
 
 // connect to SD and create File-objects
-void setup_sd() {
+bool setup_sd() {
   String data_file = "-data.csv";
   String log_file = "-log.txt";
   // TODO: Is this pin correct?
@@ -28,8 +28,7 @@ void setup_sd() {
   Serial.print("Initializing SD card...");
   if (!SD.begin(SD_CS_PORT)) {
     Serial.println("SD initialization failed!");
-    set_led(255, 0, 0);
-    while (true) {}
+    return false;
   }
   Serial.println("SD initialization done.");
 
@@ -45,6 +44,7 @@ void setup_sd() {
   LOG_FILE = SD.open(log_file, FILE_WRITE);
 
   Serial.println(data_file + " " + log_file);
+  return true;
 }
 
 // print one logging statement to logfile and serial

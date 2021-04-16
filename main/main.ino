@@ -1,5 +1,5 @@
 /* HEADERS */
-#include "led.h"
+//#include "led.h"
 #include "sd.h"
 #include "sensors.h"
 
@@ -23,11 +23,13 @@ void setup()
 {
   Serial.begin(9600);
 
+  if (setup_sd() == false) {
+    STATE = State::Error;
+  };
 
-  setup_sd();
   setup_sensors();
 
-//  set_led(0, 255, 0); TODO implement LED setup
+  //  set_led(0, 255, 0); TODO implement LED setup
 }
 
 /* LOOOOP */
@@ -40,13 +42,12 @@ void loop()
   // }
 
   // TODO: indicate state with LED
-  switch (STATE)
-  {
+  switch (STATE){
   case State::Boot:
     STATE = State::Ready;
     print_log("Ready for liftoff! Start \"Ready\"");
   case State::Ready:
-    if (datapoint.acc.z >= 240)//check these triggers
+    if (datapoint.filtered_height >= 10) //check these triggers
     {
       STATE = State::Flight;
       print_log("Detected liftoff. Start \"Flight\"");
@@ -74,7 +75,9 @@ void loop()
     }
     break;
   case State::Land:
+    break;
   case State::Error:
-
+//    set_led(250,0,0);
+    break;
   }
 }

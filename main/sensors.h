@@ -76,7 +76,7 @@ void kalman_estimate_height() {
   Kalman_Gain = pred_est_cov / (pred_est_cov + varHeight);
   est_cov = (1 - Kalman_Gain) * pred_est_cov;
   measurement_estimate_t_minus = measurement_estimate_height;
-  Zp = mesurement_estimate_t_minus;
+  Zp = measurement_estimate_t_minus;
   //measurement_estimate_height = Kalman_Gain*(datapoint.height-Zp)+measurement_estimate_t_minus;
   measurement_estimate_height = Kalman_Gain * (datapoint.height - Zp) + datapoint.height;
 
