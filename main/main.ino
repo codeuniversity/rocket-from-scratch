@@ -10,7 +10,6 @@ enum class State
   Boot,
   Ready,
   Flight,
-  Fall,
   Chute,
   Land,
 
@@ -23,7 +22,8 @@ void setup()
 {
   Serial.begin(9600);
 
-  if (setup_sd() == false) {
+  if (setup_sd() == false)
+  {
     STATE = State::Error;
   };
 
@@ -31,44 +31,40 @@ void setup()
 
   //  set_led(0, 255, 0); TODO implement LED setup
 }
-
+float last_height;
 /* LOOOOP */
 void loop()
 {
   update_sensors();
 
-  // if emergency() {
-  //   ...
-  // }
-
   // TODO: indicate state with LED
-  switch (STATE){
+  switch (STATE)
+  {
   case State::Boot:
     STATE = State::Ready;
     print_log("Ready for liftoff! Start \"Ready\"");
   case State::Ready:
-    if (datapoint.filtered_height >= 10) //check these triggers
+    // trigger when reaching 10m height
+    // this likely detects launch late, but good enough for now
+    if (datapoint.filtered_height >= 10.0)
     {
       STATE = State::Flight;
+      last_height = datapoint.filtered_height;
       print_log("Detected liftoff. Start \"Flight\"");
     }
     break;
   case State::Flight:
-    if (datapoint.acc.z <= -240) //check these triggers
+    //compares mainloop's kalman height reading to the previous
+    if (datapoint.filtered_height < last_height)
     {
-      STATE = State::Fall;
-      print_log("Detected apogee. Start \"Fall\"");
-    }
-    break;
-  case State::Fall:
-    if (datapoint.filtered_height <= 10) //check these triggers
-    {
+      //TODO: fire recovery here
       STATE = State::Chute;
-      print_log("Eject parachute. Start \"Chute\"");
+      print_log("Detected apogee. Start \"Chute\"");
     }
+    last_height = datapoint.filtered_height;
     break;
   case State::Chute:
-    if (datapoint.acc.z <= -240) //check these triggers
+    if (datapoint.filtered_height < 0.0)
     {
       STATE = State::Land;
       print_log("Detected landing. Start \"Land\"");
@@ -77,7 +73,7 @@ void loop()
   case State::Land:
     break;
   case State::Error:
-//    set_led(250,0,0);
+    //    set_led(250,0,0);
     break;
   }
 }
