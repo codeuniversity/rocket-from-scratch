@@ -5,6 +5,8 @@
 #include <Wire.h>
 
 #include "sd.h"
+#include "comms.h"
+
 
 // `Data` represents one datapoint, measured by our sensors
 struct Data {
@@ -124,5 +126,7 @@ void update_sensors() {
   kalman_estimate_height();
 
   print_data();
+
+  send_data(datapoint.height);
   /* print_log("Wrote sensor data to file"); */
 }
