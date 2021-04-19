@@ -3,10 +3,14 @@
 #include <MPU6050_tockn.h>
 #include <MS5611.h>
 #include <Wire.h>
-
+#include <cppQueue.h>
 #include "sd.h"
 #include "comms.h"
 
+static float in = 0;
+static float sum = 0;
+int size_queue = 20;
+cppQueue  q(sizeof(in), size_queue, FIFO);  // Instantiate queue
 
 // `Data` represents one datapoint, measured by our sensors
 struct Data {
@@ -37,13 +41,15 @@ struct Data {
   float height;
 
   // height filtered through kalman filter
-  float filtered_height;
+  float estimated_altitude_average;
 } datapoint;
 
 MPU6050 mpu6050(Wire);
 MS5611 MS5611(0x77);   // 0x76 = CSB to VCC; 0x77 = CSB to GND
 
 void setup_sensors() {
+
+  q.push(&in);
   print_log("MS5611 ");
   print_log(MS5611.begin() ? "found" : "not found");
 
@@ -64,28 +70,27 @@ float calc_height(float temp, float pressure) {
   return ((pow((P0 / pressure), (1 / 5.257)) - 1) * (temp + 273.15)) / 0.0065;
 }
 
-void kalman_estimate_height() {
-  static float varHeight = 0.158;  // noise variance determined using excel and reading samples of raw sensor data
-  static float varProcess = 1e-6;
-  static float pred_est_cov = 0.0;
-  static float Kalman_Gain = 0.0;
-  static float est_cov = 1.0;
-  static float measurement_estimate_t_minus = 0.0;
-  static float Zp = 0.0;
-  static float measurement_estimate_height = 0.0;
 
-  pred_est_cov = est_cov + varProcess;
-  Kalman_Gain = pred_est_cov / (pred_est_cov + varHeight);
-  est_cov = (1 - Kalman_Gain) * pred_est_cov;
-  measurement_estimate_t_minus = measurement_estimate_height;
-  Zp = measurement_estimate_t_minus;
-  //measurement_estimate_height = Kalman_Gain*(datapoint.height-Zp)+measurement_estimate_t_minus;
-  measurement_estimate_height = Kalman_Gain * (datapoint.height - Zp) + datapoint.height;
 
-  datapoint.filtered_height = measurement_estimate_height;
+float height_average(float in){
+  float out;
+  q.push(&(in));
+  if (q.getCount() < size_queue) {
+    sum += in;
+  }
+  if (q.getCount() == size_queue) {
+    sum += in;
+    q.pop(&out);
+    sum -= out;
+    float average = sum /size_queue;
+    return average;
+    }
+    else{
+      return 0;
+  }
 }
 
-// prints all data from the Data struct to file and serial
+// prints all data from the Data struct to file
 void print_data() {
   PRINT_VALUE(datapoint.time);
   PRINT_VALUE(datapoint.gyro.x);
@@ -122,8 +127,9 @@ void update_sensors() {
   datapoint.temperatureMS = MS5611.getTemperature();
   datapoint.pressure = MS5611.getPressure();
   datapoint.height = calc_height(datapoint.temperatureMS, datapoint.pressure);
+  datapoint.estimated_altitude_average = height_average(datapoint.height);
 
-  kalman_estimate_height();
+
 
   print_data();
 
