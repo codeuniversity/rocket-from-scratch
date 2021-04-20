@@ -102,7 +102,7 @@ void print_data() {
   PRINT_VALUE(datapoint.pressure);
   PRINT_VALUE(datapoint.temperatureMS);
   PRINT_VALUE(datapoint.height);
-  PRINTLN_VALUE(datapoint.filtered_height);
+  PRINTLN_VALUE(datapoint.estimated_altitude_average);
 }
 
 // read one datapoint, filter bad values, do precalculations and log datapoint
