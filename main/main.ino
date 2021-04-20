@@ -53,25 +53,26 @@ void loop()
   case State::Ready:
     // trigger when reaching 10m height
     // this likely detects launch late, but good enough for now
-    if (datapoint.filtered_height >= 10.0)
+    if (datapoint.estimated_altitude_average >= 10.0)
     {
       STATE = State::Flight;
-      last_height = datapoint.filtered_height;
+      last_height = datapoint.estimated_altitude_average;
       print_log("Detected liftoff. Start \"Flight\"");
     }
     break;
   case State::Flight:
     //compares mainloop's kalman height reading to the previous
-    if (datapoint.filtered_height < last_height)
+    if (datapoint.estimated_altitude_average < last_height)
     {
       //TODO: fire recovery here
       STATE = State::Chute;
       print_log("Detected apogee. Start \"Chute\"");
     }
-    last_height = datapoint.filtered_height;
+    last_height = datapoint.estimated_altitude_average;
     break;
   case State::Chute:
-    if (datapoint.filtered_height < 0.0)
+  //adjust 0 on day of the launch
+    if (datapoint.estimated_altitude_average < 0.0)
     {
       STATE = State::Land;
       print_log("Detected landing. Start \"Land\"");

@@ -9,7 +9,7 @@
 
 static float in = 0;
 static float sum = 0;
-int size_queue = 20;
+int size_queue = 10;
 cppQueue  q(sizeof(in), size_queue, FIFO);  // Instantiate queue
 
 // `Data` represents one datapoint, measured by our sensors
@@ -101,7 +101,7 @@ void print_data() {
   PRINT_VALUE(datapoint.pressure);
   PRINT_VALUE(datapoint.temperatureMS);
   PRINT_VALUE(datapoint.height);
-  PRINTLN_VALUE(datapoint.filtered_height);
+  PRINTLN_VALUE(datapoint.estimated_altitude_average);
 }
 
 // read one datapoint, filter bad values, do precalculations and log datapoint
