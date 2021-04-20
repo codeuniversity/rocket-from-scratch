@@ -58,4 +58,3 @@ void print_log(String && msg) {
   LOG_FILE.println(msg);
   LOG_FILE.flush();
 }
-

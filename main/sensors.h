@@ -129,8 +129,6 @@ void update_sensors() {
   datapoint.height = calc_height(datapoint.temperatureMS, datapoint.pressure);
   datapoint.estimated_altitude_average = height_average(datapoint.height);
 
-
-
   print_data();
 
   send_data(datapoint.height);

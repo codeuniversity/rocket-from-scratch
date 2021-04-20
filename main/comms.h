@@ -1,7 +1,7 @@
 #pragma once
 
 #include <SPI.h>
-#include <LoRa.h>
+#include <LoRa_STM32.h>
 
 void setup_comms() {
 //   LoRa.setPins(10, 9, 2)
@@ -11,7 +11,7 @@ void setup_comms() {
   }
 }
 
-void send_data(sensor_data) {
+void send_data(float sensor_data) {
 
   // send packet
   LoRa.beginPacket();
@@ -19,5 +19,4 @@ void send_data(sensor_data) {
   LoRa.endPacket();
 
   //delay(1000);
-}
 }
