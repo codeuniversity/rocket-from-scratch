@@ -11,12 +11,8 @@ bool setup_comms() {
   return LoRa.begin(FREQUENCY);
 }
 
-void send_data(float sensor_data) {
-
-  // send packet
+void send_data(char const * data) {
   LoRa.beginPacket();
-  LoRa.print(sensor_data);
+  LoRa.print(data);
   LoRa.endPacket();
-
-  //delay(1000);
 }
