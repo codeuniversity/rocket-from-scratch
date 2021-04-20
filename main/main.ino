@@ -21,17 +21,19 @@ enum class State
 /* SETUP */
 void setup()
 {
+  STATE = State::Boot;
   Serial.begin(9600);
 
   if (setup_sd() == false)
   {
+    print_log("Detected landing. Start \"Land\"");
     STATE = State::Error;
   };
 
   setup_sensors();
   if (setup_comms() == false)
   {
-    STATE = State::Error;
+        STATE = State::Error;
   }
 
   //  set_led(0, 255, 0); TODO implement LED setup
@@ -79,6 +81,9 @@ void loop()
     break;
   case State::Error:
     //    set_led(250,0,0);
+    print_log("Error");
     break;
+   default:
+   print_log("No");
   }
 }

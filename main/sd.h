@@ -3,7 +3,7 @@
 #include <SPI.h>
 #include <SD.h>
 
-#define SD_CS_PORT PA4
+//#define SD_CS_PORT PA4
 
 /* MACROS */
 #define PRINT_VALUE(value)                       \
@@ -26,7 +26,7 @@ bool setup_sd() {
   // TODO: Is this pin correct?
 
   Serial.print("Initializing SD card...");
-  if (!SD.begin(SD_CS_PORT)) {
+  if (!SD.begin(PA4)) {
     Serial.println("SD initialization failed!");
     return false;
   }
