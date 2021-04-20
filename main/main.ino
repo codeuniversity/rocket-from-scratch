@@ -71,7 +71,6 @@ void loop()
     last_height = datapoint.estimated_altitude_average;
     break;
   case State::Chute:
-  //adjust 0 on day of the launch
     if (datapoint.estimated_altitude_average < 0.0)
     {
       STATE = State::Land;

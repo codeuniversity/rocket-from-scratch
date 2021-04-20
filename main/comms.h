@@ -1,22 +1,18 @@
 #pragma once
 
+#define FREQUENCY 868E6
+
 #include <SPI.h>
 #include <LoRa_STM32.h>
 
 bool setup_comms() {
 //   LoRa.setPins(10, 9, 2)
 
-  while (!LoRa.begin(868E6)) {
-      return false;
-  }
+  return LoRa.begin(FREQUENCY);
 }
 
-void send_data(float sensor_data) {
-
-  // send packet
+void send_data(char const * data) {
   LoRa.beginPacket();
-  LoRa.print(sensor_data);
+  LoRa.print(data);
   LoRa.endPacket();
-
-  //delay(1000);
 }
