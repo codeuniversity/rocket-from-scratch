@@ -3,7 +3,7 @@
 #define FREQUENCY 868E6
 
 #include <SPI.h>
-#include <LoRa.h>
+#include <LoRa_STM32.h>
 
 bool setup_comms() {
 //   LoRa.setPins(10, 9, 2)
