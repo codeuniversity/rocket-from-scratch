@@ -1,7 +1,6 @@
 #pragma once
 
 #include <SPI.h>
-#include <SD.h>
 
 #define SD_CS_PORT PA4
 
@@ -58,4 +57,3 @@ void print_log(String && msg) {
   LOG_FILE.println(msg);
   LOG_FILE.flush();
 }
-
