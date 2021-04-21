@@ -5,11 +5,13 @@
 #include <Wire.h>
 #include <cppQueue.h>
 #include "sd.h"
-#include "comms.h"
+//#include "comms.h"
 
 static float in = 0;
 static float sum = 0;
-int size_queue = 20;
+int size_queue = 40;
+bool firstIteration = true;
+float heightOffset = 0;
 cppQueue  q(sizeof(in), size_queue, FIFO);  // Instantiate queue
 
 // `Data` represents one datapoint, measured by our sensors
@@ -47,9 +49,9 @@ struct Data {
   char const O = 0;
 } datapoint;
 
-void send_data (Data const & data) {
-    send_data ((char const *) & data);
-}
+//void send_data (Data const & data) {
+//    send_data ((char const *) & data);
+//}
 
 MPU6050 mpu6050(Wire);
 MS5611 MS5611(0x77);   // 0x76 = CSB to VCC; 0x77 = CSB to GND
@@ -58,15 +60,18 @@ void setup_sensors() {
 
   q.push(&in);
   print_log("MS5611 ");
+  
   print_log(MS5611.begin() ? "found" : "not found");
-
+  //testing if the break is in the line above
+  Serial.println("test");
+  print_log("test");
   mpu6050.begin();
   /* mpu6050.calcGyroOffsets(true); */
   // only relevant to the GY-86
   mpu6050.setGyroOffsets(-0.83, -1.56, 0.15);
 
   /* DATA_FILE.println("Time, TempMPU, TempMS, Pressure, heightTP, heightKalman, AccX, AccY, AccZ, GyroX, GyroY, GyroZ, AccAngleX, AccAngleY, GyroAngleX, GyroAngleY, GyroZ, AngleX, AngleY, AngleZ"); */
-  DATA_FILE.println("Time, GyroX, GyroY, GyroZ, AccX, AccY, AccZ, Pressure, TempMS, Height, KalHeight");
+  DATA_FILE.println("Time, GyroX, GyroY, GyroZ, AccX, AccY, AccZ, Pressure, TempMS, Height, EstHeight");
   DATA_FILE.flush();
 }
 
@@ -74,7 +79,14 @@ float calc_height(float temp, float pressure) {
   // change these on the day
   const float P0 = 1019.5; // Sea level pressure in Berlin
   temp = 5; // Temperature in Berlin
-  return ((pow((P0 / pressure), (1 / 5.257)) - 1) * (temp + 273.15)) / 0.0065;
+  float calculatedHeight = ((pow((P0 / pressure), (1 / 5.257)) - 1) * (temp + 273.15)) / 0.0065;
+
+  if(firstIteration == true){
+    heightOffset = calculatedHeight;
+    firstIteration = false;
+  }
+
+  return calculatedHeight - heightOffset;
 }
 
 
@@ -140,7 +152,6 @@ void update_sensors() {
 
   print_data();
 
-  send_data(datapoint);
+  //send_data(datapoint);
   /* print_log("Wrote sensor data to file"); */
 }
-

@@ -2,7 +2,7 @@
 //#include "led.h"
 #include "sd.h"
 #include "sensors.h"
-#include "comms.h"
+//#include "comms.h"
 
 /*DATA STRUCTURES*/
 // `State` represents all states of the flight and has an additional "Boot" and "Error" state
@@ -25,14 +25,17 @@ void setup()
 
   if (setup_sd() == false)
   {
-    STATE = State::Error;
+    //STATE = State::Error;
+    print_log("ERROR! SD \"Error\"");
   };
 
   setup_sensors();
-  if (setup_comms() == false)
-  {
-    STATE = State::Error;
-  }
+//  if (setup_comms() == false)
+//  {
+//    STATE = State::Error;
+//    print_log("ERROR! Comms \"Error\"");
+//
+//  }
 
   //  set_led(0, 255, 0); TODO implement LED setup
 }
@@ -51,7 +54,7 @@ void loop()
   case State::Ready:
     // trigger when reaching 10m height
     // this likely detects launch late, but good enough for now
-    if (datapoint.estimated_altitude_average >= 10.0)
+    if (datapoint.estimated_altitude_average >= 1.5)
     {
       STATE = State::Flight;
       last_height = datapoint.estimated_altitude_average;
