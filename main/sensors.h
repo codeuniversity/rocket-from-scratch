@@ -51,9 +51,9 @@ struct Data {
   char const O = 0;
 } datapoint;
 
-//void send_data (Data const & data) {
-//    send_data ((char const *) & data);
-//}
+void send_data (Data const & data) {
+    send_data ((char const *) & data);
+}
 
 MPU6050 mpu6050(Wire);
 MS5611 MS5611(0x77);   // 0x76 = CSB to VCC; 0x77 = CSB to GND
@@ -152,6 +152,6 @@ void update_sensors() {
 
   print_data();
 
-  //send_data(datapoint);
+  send_data(datapoint);
   /* print_log("Wrote sensor data to file"); */
 }
