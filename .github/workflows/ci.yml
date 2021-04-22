@@ -1,11 +1,11 @@
 on: ["push"]
 
 jobs:
-    arduino:
+    arduino-main:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
-            - uses: arduino/compile-sketches@main
+            - uses: arduino/compile-sketches@v1
               with:
                   fqbn: "stm32duino:STM32F1:genericSTM32F103C"
                   platforms: |
@@ -18,4 +18,14 @@ jobs:
                       - name: MS5611
                       - name: SD
                       # SPI.h and Wire.h seem to be available per default
+                  enable-deltas-report: true
+    arduino-no-libs:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+            - uses: arduino/compile-sketches@v1
+              with:
+                  fqbn: "arduino:avr:uno"
+                  sketch-paths: |
+                      - tests/ejection_test
                   enable-deltas-report: true
