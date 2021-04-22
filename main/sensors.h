@@ -3,8 +3,18 @@
 #include <MPU6050_tockn.h>
 #include <MS5611.h>
 #include <Wire.h>
-
+#include <cppQueue.h>
 #include "sd.h"
+#include "comms.h"
+
+static float in = 0;
+static float sum = 0;
+//size_queue is our main setting we can change to adjust the sensitivity of the estimated height in order to avoid accidental triggers. 
+//When doing low speed / on or near ground tests it should be set higher than during rocket flight.
+int size_queue = 25;
+bool firstIteration = true;
+float heightOffset = 0;
+cppQueue  q(sizeof(in), size_queue, FIFO);  // Instantiate queue
 
 // `Data` represents one datapoint, measured by our sensors
 struct Data {
@@ -35,23 +45,35 @@ struct Data {
   float height;
 
   // height filtered through kalman filter
-  float filtered_height;
+  float estimated_altitude_average;
+
+  // null terminator needed to prevent array overflow
+  char const O = 0;
 } datapoint;
+
+//void send_data (Data const & data) {
+//    send_data ((char const *) & data);
+//}
 
 MPU6050 mpu6050(Wire);
 MS5611 MS5611(0x77);   // 0x76 = CSB to VCC; 0x77 = CSB to GND
 
 void setup_sensors() {
-  print_log("MS5611 ");
-  print_log(MS5611.begin() ? "found" : "not found");
 
+  q.push(&in);
+  print_log("MS5611 ");
+  
+  print_log(MS5611.begin() ? "found" : "not found");
+  //testing if the break is in the line above
+  Serial.println("test");
+  print_log("test");
   mpu6050.begin();
   /* mpu6050.calcGyroOffsets(true); */
   // only relevant to the GY-86
   mpu6050.setGyroOffsets(-0.83, -1.56, 0.15);
 
   /* DATA_FILE.println("Time, TempMPU, TempMS, Pressure, heightTP, heightKalman, AccX, AccY, AccZ, GyroX, GyroY, GyroZ, AccAngleX, AccAngleY, GyroAngleX, GyroAngleY, GyroZ, AngleX, AngleY, AngleZ"); */
-  DATA_FILE.println("Time, GyroX, GyroY, GyroZ, AccX, AccY, AccZ, Pressure, TempMS, Height, KalHeight");
+  DATA_FILE.println("Time, GyroX, GyroY, GyroZ, AccX, AccY, AccZ, Pressure, TempMS, Height, EstHeight");
   DATA_FILE.flush();
 }
 
@@ -59,31 +81,37 @@ float calc_height(float temp, float pressure) {
   // change these on the day
   const float P0 = 1019.5; // Sea level pressure in Berlin
   temp = 5; // Temperature in Berlin
-  return ((pow((P0 / pressure), (1 / 5.257)) - 1) * (temp + 273.15)) / 0.0065;
+  float calculatedHeight = ((pow((P0 / pressure), (1 / 5.257)) - 1) * (temp + 273.15)) / 0.0065;
+
+  if(firstIteration == true){
+    heightOffset = calculatedHeight;
+    firstIteration = false;
+  }
+
+  return calculatedHeight - heightOffset;
 }
 
-void kalman_estimate_height() {
-  static float varHeight = 0.158;  // noise variance determined using excel and reading samples of raw sensor data
-  static float varProcess = 1e-6;
-  static float pred_est_cov = 0.0;
-  static float Kalman_Gain = 0.0;
-  static float est_cov = 1.0;
-  static float mesurement_estimate_t_minus = 0.0;
-  static float Zp = 0.0;
-  static float mesurement_estimate_height = 0.0;
 
-  pred_est_cov = est_cov + varProcess;
-  Kalman_Gain = pred_est_cov / (pred_est_cov + varHeight);
-  est_cov = (1 - Kalman_Gain) * pred_est_cov;
-  mesurement_estimate_t_minus = mesurement_estimate_height;
-  Zp = mesurement_estimate_t_minus;
-  //mesurement_estimate_height = Kalman_Gain*(datapoint.height-Zp)+mesurement_estimate_t_minus;
-  mesurement_estimate_height = Kalman_Gain * (datapoint.height - Zp) + datapoint.height;
 
-  datapoint.filtered_height = mesurement_estimate_height;
+float height_average(float in){
+  float out;
+  q.push(&(in));
+  if (q.getCount() < size_queue) {
+    sum += in;
+  }
+  if (q.getCount() == size_queue) {
+    sum += in;
+    q.pop(&out);
+    sum -= out;
+    float average = sum /size_queue;
+    return average;
+    }
+    else{
+      return 0;
+  }
 }
 
-// prints all data from the Data struct to file and serial
+// prints all data from the Data struct to file
 void print_data() {
   PRINT_VALUE(datapoint.time);
   PRINT_VALUE(datapoint.gyro.x);
@@ -95,7 +123,7 @@ void print_data() {
   PRINT_VALUE(datapoint.pressure);
   PRINT_VALUE(datapoint.temperatureMS);
   PRINT_VALUE(datapoint.height);
-  PRINTLN_VALUE(datapoint.filtered_height);
+  PRINTLN_VALUE(datapoint.estimated_altitude_average);
 }
 
 // read one datapoint, filter bad values, do precalculations and log datapoint
@@ -120,9 +148,10 @@ void update_sensors() {
   datapoint.temperatureMS = MS5611.getTemperature();
   datapoint.pressure = MS5611.getPressure();
   datapoint.height = calc_height(datapoint.temperatureMS, datapoint.pressure);
-
-  kalman_estimate_height();
+  datapoint.estimated_altitude_average = height_average(datapoint.height);
 
   print_data();
+
+  //send_data(datapoint);
   /* print_log("Wrote sensor data to file"); */
 }
