@@ -63,7 +63,7 @@ void loop()
     break;
   case State::Flight:
     //compares mainloop's kalman height reading to the previous
-    if (datapoint.estimated_altitude_average < last_height)
+    if (datapoint.estimated_altitude_average < (last_height -1))
     {
       //TODO: fire recovery here
       STATE = State::Chute;
