@@ -5,8 +5,10 @@
 #include <SPI.h>
 #include <LoRa_STM32.h>
 
+
+
 bool setup_comms() {
-//   LoRa.setPins(10, 9, 2)
+  LoRa.setPins(B12, C13, A1)
 
   return LoRa.begin(FREQUENCY);
 }
