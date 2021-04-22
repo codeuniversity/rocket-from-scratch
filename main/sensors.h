@@ -5,11 +5,13 @@
 #include <Wire.h>
 #include <cppQueue.h>
 #include "sd.h"
-//#include "comms.h"
+#include "comms.h"
 
 static float in = 0;
 static float sum = 0;
-int size_queue = 40;
+//size_queue is our main setting we can change to adjust the sensitivity of the estimated height in order to avoid accidental triggers. 
+//When doing low speed / on or near ground tests it should be set higher than during rocket flight.
+int size_queue = 25;
 bool firstIteration = true;
 float heightOffset = 0;
 cppQueue  q(sizeof(in), size_queue, FIFO);  // Instantiate queue

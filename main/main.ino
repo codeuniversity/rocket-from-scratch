@@ -2,7 +2,7 @@
 //#include "led.h"
 #include "sd.h"
 #include "sensors.h"
-//#include "comms.h"
+#include "comms.h"
 
 /*DATA STRUCTURES*/
 // `State` represents all states of the flight and has an additional "Boot" and "Error" state
@@ -30,12 +30,12 @@ void setup()
   };
 
   setup_sensors();
-//  if (setup_comms() == false)
-//  {
-//    STATE = State::Error;
-//    print_log("ERROR! Comms \"Error\"");
-//
-//  }
+  if (setup_comms() == false)
+  {
+    STATE = State::Error;
+    print_log("ERROR! Comms \"Error\"");
+
+  }
 
   //  set_led(0, 255, 0); TODO implement LED setup
 }
@@ -81,6 +81,7 @@ void loop()
   case State::Land:
     break;
   case State::Error:
+      print_log("something didn't work good luck fixing it!");
     //    set_led(250,0,0);
     break;
   }
