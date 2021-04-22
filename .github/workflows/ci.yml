@@ -14,10 +14,10 @@ jobs:
                   sketch-paths: |
                       - main
                   libraries: |
-                      - name: Queue
-                      - source-url: "https://github.com/armtronix/arduino-LoRa-STM32/archive/refs/heads/master.zip"
                       - name: MPU6050_tockn
                       - name: MS5611
+                      - name: Queue
                       - name: SD
+                      - source-url: "https://github.com/armtronix/arduino-LoRa-STM32/archive/refs/heads/master.zip"
                       # SPI.h and Wire.h seem to be available per default
                   enable-deltas-report: true
