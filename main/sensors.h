@@ -68,10 +68,9 @@ void setup_sensors() {
   Serial.println("test");
   print_log("test");
   // Configure the mpu6050 here. Look Ch. 6: https://3cfeqx1hf82y3xcoull08ihx-wpengine.netdna-ssl.com/wp-content/uploads/2015/02/MPU-6000-Datasheet1.pdf
-  mpu6050.begin(1, 1);
-  /* mpu6050.calcGyroOffsets(true); */
-  // only relevant to the GY-86
-  mpu6050.setGyroOffsets(-0.83, -1.56, 0.15);
+  mpu6050.begin(1, 3);
+  mpu6050.setAccOffsets(0.05, -0.15, -0.15);
+  mpu6050.setGyroOffsets(-0.93, -1.26, 0.25);
 
   /* DATA_FILE.println("Time, TempMPU, TempMS, Pressure, heightTP, heightKalman, AccX, AccY, AccZ, GyroX, GyroY, GyroZ, AccAngleX, AccAngleY, GyroAngleX, GyroAngleY, GyroZ, AngleX, AngleY, AngleZ"); */
   DATA_FILE.println("Time, GyroX, GyroY, GyroZ, AccX, AccY, AccZ, Pressure, TempMS, Height, EstHeight");
@@ -134,7 +133,7 @@ void update_sensors() {
   int err = MS5611.read();
   if (err != MS5611_READ_OK) {
     print_log("Error in read:");
-    print_log("err");
+    print_log("MS5611");
     return;
   }
 
@@ -142,9 +141,9 @@ void update_sensors() {
   datapoint.acc.x = mpu6050.getAccX();
   datapoint.acc.y = mpu6050.getAccY();
   datapoint.acc.z = mpu6050.getAccZ();
-  datapoint.gyro.x = mpu6050.getGyroX();
-  datapoint.gyro.y = mpu6050.getGyroY();
-  datapoint.gyro.z = mpu6050.getGyroZ();
+  datapoint.gyro.x = mpu6050.getAngleX();
+  datapoint.gyro.y = mpu6050.getAngleY();
+  datapoint.gyro.z = mpu6050.getAngleZ();
 
   datapoint.temperatureMS = MS5611.getTemperature();
   datapoint.pressure = MS5611.getPressure();
