@@ -25,17 +25,17 @@ void setup()
 
   if (setup_sd() == false)
   {
-    //STATE = State::Error;
+    STATE = State::Error;
     print_log("ERROR! SD \"Error\"");
   };
 
   setup_sensors();
-  if (setup_comms() == false)
-  {
-    STATE = State::Error;
-    print_log("ERROR! Comms \"Error\"");
-
-  }
+//  if (setup_comms() == false)
+//  {
+//    STATE = State::Error;
+//    print_log("ERROR! Comms \"Error\"");
+//
+//  }
 
   //  set_led(0, 255, 0); TODO implement LED setup
 }
@@ -81,7 +81,7 @@ void loop()
   case State::Land:
     break;
   case State::Error:
-      print_log("something didn't work good luck fixing it!");
+    print_log("something didn't work good luck fixing it!");
     //    set_led(250,0,0);
     break;
   }
