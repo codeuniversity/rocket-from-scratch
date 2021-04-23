@@ -13,6 +13,7 @@ jobs:
                         source-url: "http://dan.drown.org/stm32duino/package_STM32duino_index.json"
                   sketch-paths: |
                       - main
+                      - tests/ejection_test
                   libraries: |
                       - name: MPU6050_tockn
                       - name: MS5611
@@ -20,14 +21,4 @@ jobs:
                       - name: SD
                       - source-url: "https://github.com/armtronix/arduino-LoRa-STM32/archive/refs/heads/master.zip"
                       # SPI.h and Wire.h seem to be available per default
-                  enable-deltas-report: true
-    arduino-no-libs:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v2
-            - uses: arduino/compile-sketches@v1
-              with:
-                  fqbn: "arduino:avr:uno"
-                  sketch-paths: |
-                      - tests/ejection_test
                   enable-deltas-report: true
