@@ -7,8 +7,8 @@ void setup() {
   pinMode(FIRE_PIN, OUTPUT);
 
   // TODO(2): is this countdown enough?
-  // wait for 20 sec
-  delay(20000);
+  // wait for 120 sec
+  delay(120000);
 
   Serial.println("FIRE!");
   digitalWrite(FIRE_PIN, HIGH);
