@@ -15,7 +15,7 @@ jobs:
                       - main
                       - tests/ejection_test
                   libraries: |
-                      - name: MPU6050_tockn
+                      - name: MPU6050_light
                       - name: MS5611
                       - name: Queue
                       - name: SD

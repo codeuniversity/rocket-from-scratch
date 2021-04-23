@@ -1,6 +1,6 @@
 #pragma once
 
-#include <MPU6050_tockn.h>
+#include <MPU6050_light.h>
 #include <MS5611.h>
 #include <Wire.h>
 #include <cppQueue.h>
@@ -9,7 +9,7 @@
 
 static float in = 0;
 static float sum = 0;
-//size_queue is our main setting we can change to adjust the sensitivity of the estimated height in order to avoid accidental triggers. 
+//size_queue is our main setting we can change to adjust the sensitivity of the estimated height in order to avoid accidental triggers.
 //When doing low speed / on or near ground tests it should be set higher than during rocket flight.
 int size_queue = 25;
 bool firstIteration = true;
@@ -62,12 +62,13 @@ void setup_sensors() {
 
   q.push(&in);
   print_log("MS5611 ");
-  
+
   print_log(MS5611.begin() ? "found" : "not found");
   //testing if the break is in the line above
   Serial.println("test");
   print_log("test");
-  mpu6050.begin();
+  // Configure the mpu6050 here. Look Ch. 6: https://3cfeqx1hf82y3xcoull08ihx-wpengine.netdna-ssl.com/wp-content/uploads/2015/02/MPU-6000-Datasheet1.pdf
+  mpu6050.begin(1, 1);
   /* mpu6050.calcGyroOffsets(true); */
   // only relevant to the GY-86
   mpu6050.setGyroOffsets(-0.83, -1.56, 0.15);
