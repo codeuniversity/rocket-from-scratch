@@ -1,5 +1,5 @@
 #include <SPI.h>
-#include <LoRa_STM32.h>
+#include <LoRa.h>
 
 
 // `Data` represents one datapoint, measured by our sensors
@@ -41,6 +41,9 @@ void setup() {
   Serial.begin(115200);
   while (!Serial);
 
+  //LoRa.setPins(10, 9, 3);
+
+
   Serial.println("LoRa Receiver");
 
   if (!LoRa.begin(868E6)) {
@@ -63,6 +66,7 @@ void loop() {
     }
 
     Serial.println(datapoint.estimated_altitude_average);
+    //Serial.println(LoRa.read());
     
     // print RSSI of packet
     Serial.print("' with RSSI ");
