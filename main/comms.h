@@ -8,13 +8,16 @@
 
 
 bool setup_comms() {
-  LoRa.setPins(B12, C13, A1)
+  LoRa.setPins(PB12, PC13, PA1);
 
-  return LoRa.begin(FREQUENCY);
+  while (!LoRa.begin(FREQUENCY));
+  return true;
 }
 
 void send_data(char const * data) {
   LoRa.beginPacket();
   LoRa.print(data);
   LoRa.endPacket();
+  Serial.println("sending data");
+  Serial.println(LoRa.parsePacket());
 }

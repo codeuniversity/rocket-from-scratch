@@ -21,23 +21,25 @@ enum class State
 /* SETUP */
 void setup()
 {
+  pinMode(PB10, OUTPUT);
   Serial.begin(9600);
 
-  if (setup_sd() == false)
+  if (!setup_sd())
   {
     STATE = State::Error;
     print_log("ERROR! SD \"Error\"");
   };
 
-  setup_sensors();
-//  if (setup_comms() == false)
-//  {
-//    STATE = State::Error;
-//    print_log("ERROR! Comms \"Error\"");
-//
-//  }
+  if (!setup_sensors()) {
+    print_log("ERROR! Sensors \"Error\"");
+    STATE = State::Error;
+  }
 
-  //  set_led(0, 255, 0); TODO implement LED setup
+  if (!setup_comms())
+  {
+    print_log("ERROR! Comms \"Error\"");
+    STATE = State::Error;
+  }
 }
 float last_height;
 /* LOOOOP */
