@@ -1,11 +1,11 @@
 on: ["push"]
 
 jobs:
-    arduino:
+    arduino-main:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
-            - uses: arduino/compile-sketches@main
+            - uses: arduino/compile-sketches@v1
               with:
                   fqbn: "stm32duino:STM32F1:genericSTM32F103C"
                   platforms: |
@@ -13,8 +13,9 @@ jobs:
                         source-url: "http://dan.drown.org/stm32duino/package_STM32duino_index.json"
                   sketch-paths: |
                       - main
+                      - tests/ejection_test
                   libraries: |
-                      - name: MPU6050_tockn
+                      - name: MPU6050_light
                       - name: MS5611
                       - name: Queue
                       - name: SD
