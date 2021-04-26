@@ -2,7 +2,7 @@
 //#include "led.h"
 #include "sd.h"
 #include "sensors.h"
-#include "comms.h"
+//#include "comms.h"
 
 /*DATA STRUCTURES*/
 // `State` represents all states of the flight and has an additional "Boot" and "Error" state
@@ -22,7 +22,7 @@ enum class State
 void setup()
 {
   Serial.begin(9600);
-
+  pinMode (PB12, OUTPUT);
   if (setup_sd() == false)
   {
     STATE = State::Error;
@@ -63,9 +63,9 @@ void loop()
     break;
   case State::Flight:
     //compares mainloop's kalman height reading to the previous
-    if (datapoint.estimated_altitude_average < (last_height -1))
+    if (datapoint.estimated_altitude_average < (last_height - 0.25))
     {
-      //TODO: fire recovery here
+      digitalWrite(PB12, HIGH);
       STATE = State::Chute;
       print_log("Detected apogee. Start \"Chute\"");
     }
@@ -75,6 +75,7 @@ void loop()
     if (datapoint.estimated_altitude_average < 0.0)
     {
       STATE = State::Land;
+      
       print_log("Detected landing. Start \"Land\"");
     }
     break;

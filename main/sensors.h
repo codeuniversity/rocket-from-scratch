@@ -5,7 +5,7 @@
 #include <Wire.h>
 #include <cppQueue.h>
 #include "sd.h"
-#include "comms.h"
+//#include "comms.h"
 
 static float in = 0;
 static float sum = 0;
