@@ -8,13 +8,13 @@
 
 class PID {
   public:
-    float Run(float input);
-    void setTunings(float newKP, float newKI, float newKD);
-    void setIterationDelay(int newTimeMillis);
-    void setOutputLimits(float min, float max);
+    float Run(float input); // run with new input
+    void setTunings(float newKP, float newKI, float newKD); // change gains
+    void setIterationDelay(int newTimeMillis); // change delay between iterations
+    void setOutputLimits(float min, float max); // set boundaries for the output values of the PID
     //void setMode(int _mode);
-    void setTarget(float _target);
-    void setControllerDirection(int _direction);
+    void setTarget(float _target); // set performance messure ("set point")
+    void setControllerDirection(int _direction); // option to reverse output values
 
     explicit PID(float _target, float _kp, float _ki, float _kd, int _delay, float _min, float _max, int _direction) {
       setTarget(_target);
@@ -45,16 +45,19 @@ float PID::Run(float input) {
   unsigned long nowMillis = millis();
   int timeChange = (nowMillis - lastTimeMillis);
 
+  // check if configured iteration delay passed since the last run
   if (timeChange >= iterationDelay) {
     float error = target - input;
     integralTerm += (ki * error);
 
+    // integral term is bound to the output maximum as well
     if (integralTerm > outMax) integralTerm = outMax;
     if (integralTerm < outMin) integralTerm = outMin;
 
-    float inputDelta = (input - lastInput);
+    float inputDelta = (input - lastInput); //derivitive
 
-    output = kp * error + integralTerm - kd * inputDelta;
+    output = kp * error + integralTerm - kd * inputDelta; //calculate output
+    // check that output is inbetween boundaries
     if (output > outMax) output = outMax;
     if (output < outMin) output = outMin;
 
@@ -68,10 +71,9 @@ float PID::Run(float input) {
 void PID::setTunings(float newKP, float newKI, float newKD) {
   if (newKP < 0 || newKI < 0 || newKD < 0) return;
 
-  float iterationDelaySeconds = ((float)iterationDelay) / 1000;
   kp = newKP;
-  ki = newKI * iterationDelaySeconds;
-  kd = newKD / iterationDelaySeconds;
+  ki = newKI;
+  kd = newKD;
 
   if (controllerDirection == PID_DIRECTION_REVERSE) {
     kp = (0 - kp);
@@ -82,9 +84,9 @@ void PID::setTunings(float newKP, float newKI, float newKD) {
 
 void PID::setIterationDelay(int newDelayMillis) {
   if (newDelayMillis > 0) {
-    float ratio  = (float)newDelayMillis / (float) iterationDelay;
-    ki *= ratio;
-    kd /= ratio;
+    // float ratio  = (float)newDelayMillis / (float) iterationDelay;
+    // ki *= ratio;
+    // kd /= ratio;
     iterationDelay = (unsigned long) newDelayMillis;
   }
 }
