@@ -21,8 +21,8 @@ enum class State
 /* SETUP */
 void setup()
 {
-  pinMode(PB10, OUTPUT);
   Serial.begin(9600);
+  pinMode(PB9, OUTPUT);
 
   if (!setup_sd())
   {
@@ -30,16 +30,14 @@ void setup()
     print_log("ERROR! SD \"Error\"");
   };
 
-  if (!setup_sensors()) {
-    print_log("ERROR! Sensors \"Error\"");
-    STATE = State::Error;
-  }
+  setup_sensors();
 
   if (!setup_comms())
   {
-    print_log("ERROR! Comms \"Error\"");
     STATE = State::Error;
+    print_log("ERROR! Comms \"Error\"");
   }
+
 }
 float last_height;
 /* LOOOOP */

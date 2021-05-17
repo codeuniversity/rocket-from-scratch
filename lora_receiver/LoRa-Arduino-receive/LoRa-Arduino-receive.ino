@@ -64,12 +64,14 @@ void loop() {
     for (int i = 0; i < packetSize; i++) {
       dataString[i] = LoRa.read();
     }
+    
+    //Serial.println(dataString);
 
-    Serial.println(datapoint.estimated_altitude_average);
+    Serial.println(datapoint.pressure);
     //Serial.println(LoRa.read());
     
     // print RSSI of packet
-    Serial.print("' with RSSI ");
-    Serial.println(LoRa.packetRssi());
+//    Serial.print("with RSSI ");
+//    Serial.println(LoRa.packetRssi());
   }
 }
