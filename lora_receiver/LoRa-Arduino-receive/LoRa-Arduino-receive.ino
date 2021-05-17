@@ -64,6 +64,7 @@ void loop() {
     for (int i = 0; i < packetSize; i++) {
       dataString[i] = LoRa.read();
     }
+<<<<<<< HEAD:lora_receiver/LoRa-Arduino-receive/LoRa-Arduino-receive.ino
     
     //Serial.println(dataString);
 
@@ -73,5 +74,20 @@ void loop() {
     // print RSSI of packet
 //    Serial.print("with RSSI ");
 //    Serial.println(LoRa.packetRssi());
+=======
+ 
+    Serial.print(datapoint.time);
+    Serial.print(";\t");
+    Serial.print(datapoint.height);
+    Serial.print(";\t");
+    Serial.print(datapoint.pressure);
+    Serial.print(";\t");
+    Serial.print(datapoint.temperatureMS);
+    Serial.print(";\t");
+    //estimated_altitude_average
+    // print RSSI of packet
+    Serial.print(" with RSSI ");
+    Serial.println(LoRa.packetRssi());
+>>>>>>> 030262c (changed the print Datastruct):lora_receiver/LoRa-STM32-receive/LoRa-STM32-receive.ino
   }
 }
