@@ -5,19 +5,13 @@
 #include <SPI.h>
 #include <LoRa_STM32.h>
 
-
-
 bool setup_comms() {
-  LoRa.setPins(PB12, PC13, PA1);
-
-  while (!LoRa.begin(FREQUENCY));
-  return true;
+//   LoRa.setPins(10, 9, 2)
+  return LoRa.begin(FREQUENCY);
 }
 
-void send_data(char const * data) {
+void send_data(unsigned char const * data, int len) {
   LoRa.beginPacket();
-  LoRa.print(data);
+  LoRa.write(data, len);
   LoRa.endPacket();
-  Serial.println("sending data");
-  Serial.println(LoRa.parsePacket());
 }

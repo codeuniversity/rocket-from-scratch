@@ -1,8 +1,9 @@
 /* HEADERS */
 //#include "led.h"
-//#include "sd.h"
+#include "sd.h"
 #include "sensors.h"
 #include "comms.h"
+
 
 /*DATA STRUCTURES*/
 // `State` represents all states of the flight and has an additional "Boot" and "Error" state
@@ -21,34 +22,24 @@ enum class State
 /* SETUP */
 void setup()
 {
-  pinMode(PB10, OUTPUT);
   Serial.begin(9600);
-  Serial.println("start serial");
+  pinMode(PB9, OUTPUT);
+  Serial.println("start");
 
-//  if (!setup_sd())
+
+//  if (setup_sd() == false)
 //  {
-//    //STATE = State::Error;
-//    Serial.println("SD failed");
+//    STATE = State::Error;
 //    print_log("ERROR! SD \"Error\"");
 //  };
 
-  if (!setup_sensors()) {
-    print_log("ERROR! Sensors \"Error\"");
-    STATE = State::Error;
-  }
-  Serial.println("setup sensors worked");
-  
-  if (!setup_comms())
+  setup_sensors();
+  //digitalWrite(PB9, HIGH);
+  if (setup_comms() == false)
   {
-    print_log("ERROR! Comms \"Error\"");
     STATE = State::Error;
+    print_log("ERROR! Comms \"Error\"");
   }
-  Serial.println("setup comms worked");
-
-  digitalWrite(PB10, HIGH);   // turn the LED on (HIGH is the voltage level)
-  delay(500);              // wait for a second
-  digitalWrite(PB10, LOW);    // turn the LED off by making the voltage LOW
-  delay(500); 
 
   //  set_led(0, 255, 0); TODO implement LED setup
 }
@@ -57,11 +48,9 @@ float last_height;
 void loop()
 {
   update_sensors();
-
-  digitalWrite(PB10, HIGH);   // turn the LED on (HIGH is the voltage level)
-  delay(1000);              // wait for a second
-  digitalWrite(PB10, LOW);    // turn the LED off by making the voltage LOW
-  delay(1000); 
+  digitalWrite(PB9, HIGH); 
+  
+     // turn the LED on (HIGH is the voltage level)
 
   // TODO: indicate state with LED
   switch (STATE)
@@ -99,7 +88,7 @@ void loop()
   case State::Land:
     break;
   case State::Error:
-      print_log("something didn't work good luck fixing it!");
+    print_log("something didn't work good luck fixing it!");
     //    set_led(250,0,0);
     break;
   }
