@@ -32,10 +32,21 @@ struct Data {
 
   // height filtered through kalman filter
   float estimated_altitude_average;
-
-  // null terminator needed to prevent array overflow
-  char const O = 0;
 } datapoint;
+
+enum DataIndex {
+    TIME = 0,
+    GYRO_X,
+    GYRO_Y,
+    GYRO_Z,
+    ACC_X,
+    ACC_Y,
+    ACC_Z,
+    PRESSURE,
+    TEMPERATURE,
+    HEIGHT,
+    ESTIMATED_ALTITUDE_AVERAGE
+};
 
 void setup() {
   Serial.begin(115200);
@@ -56,38 +67,58 @@ void loop() {
   // try to parse packet
   int packetSize = LoRa.parsePacket();
   if (packetSize) {
-    char * dataString = (char *) & datapoint;
-    // received a packet
-    Serial.print("Received packet '");
+    char packet [9];
 
-    // read packet
-    for (int i = 0; i < packetSize; i++) {
-      dataString[i] = LoRa.read();
-    }
-<<<<<<< HEAD:lora_receiver/LoRa-Arduino-receive/LoRa-Arduino-receive.ino
-    
-    //Serial.println(dataString);
+    if (* packet = 0)
+        print_value ((DataIndex) packet [0], * (long *) packet + 1);
+    else
+        print_value ((DataIndex) packet [0], * (float *) packet + 1);
 
-    Serial.println(datapoint.pressure);
-    //Serial.println(LoRa.read());
-    
-    // print RSSI of packet
-//    Serial.print("with RSSI ");
-//    Serial.println(LoRa.packetRssi());
-=======
- 
-    Serial.print(datapoint.time);
-    Serial.print(";\t");
-    Serial.print(datapoint.height);
-    Serial.print(";\t");
-    Serial.print(datapoint.pressure);
-    Serial.print(";\t");
-    Serial.print(datapoint.temperatureMS);
-    Serial.print(";\t");
-    //estimated_altitude_average
-    // print RSSI of packet
+
     Serial.print(" with RSSI ");
     Serial.println(LoRa.packetRssi());
->>>>>>> 030262c (changed the print Datastruct):lora_receiver/LoRa-STM32-receive/LoRa-STM32-receive.ino
   }
+}
+
+void print_value (DataIndex index, long value) {
+    Serial.print("time\t");
+    Serial.println(value);
+}
+void print_value (DataIndex index, float value) {
+    switch (index) {
+        case GYRO_X:
+            Serial.print("gyro_x\t");
+            break;
+        case GYRO_Y:
+            Serial.print("gyro_y\t");
+            break;
+        case GYRO_Z:
+            Serial.print("gyro_z\t");
+            break;
+        case ACC_X:
+            Serial.print("acc_x\t");
+            break;
+        case ACC_Y:
+            Serial.print("acc_y\t");
+            break;
+        case ACC_Z:
+            Serial.print("acc_z\t");
+            break;
+        case PRESSURE:
+            Serial.print("pressure\t");
+            break;
+        case TEMPERATURE:
+            Serial.print("temperature\t");
+            break;
+        case HEIGHT:
+            Serial.print("height\t");
+            break;
+        case ESTIMATED_ALTITUDE_AVERAGE:
+            Serial.print("estimated_altitude_average\t");
+            break;
+        default:
+            Serial.println("ERROR - invalid datapoint index");
+            return;
+    }
+    Serial.println(value);
 }
