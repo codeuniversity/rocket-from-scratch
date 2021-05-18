@@ -46,8 +46,6 @@ struct Data {
 
   // height filtered through kalman filter
   float estimated_altitude_average;
-
-  // null terminator needed to prevent array overflow
 } datapoint;
 
 void send_data (Data const & data) {
@@ -151,6 +149,18 @@ void update_sensors() {
 
   print_data();
 
-  send_data(datapoint);
+
+  send_value(TIME, datapoint.time);
+  send_value(GYRO_X, datapoint.gyro.x);
+  send_value(GYRO_Y, datapoint.gyro.y);
+  send_value(GYRO_Z, datapoint.gyro.z);
+  send_value(ACC_X, datapoint.acc.x);
+  send_value(ACC_Y, datapoint.acc.y);
+  send_value(ACC_Z, datapoint.acc.z);
+  send_value(PRESSURE, datapoint.pressure);
+  send_value(TEMPERATURE, datapoint.temperatureMS);
+  send_value(HEIGHT, datapoint.height);
+  send_value(ESTIMATED_ALTITUDE_AVERAGE, datapoint.estimated_altitude_average);
+
   /* print_log("Wrote sensor data to file"); */
 }
