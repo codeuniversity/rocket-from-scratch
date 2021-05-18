@@ -33,14 +33,14 @@ void send_data(unsigned char const * data, int len) {
 }
 
 void send_value(DataIndex index, float value) {
+    float hash = value/(index + 1);
     LoRa.beginPacket();
     LoRa.print((char) index);
     LoRa.print(value);
+    LoRa.print(hash);
     LoRa.endPacket();
 }
+
 void send_value(DataIndex index, long value) {
-    LoRa.beginPacket();
-    LoRa.print((char) index);
-    LoRa.print(value);
-    LoRa.endPacket();
+    send_value(index,(float)value);
 }
