@@ -52,15 +52,14 @@ void setup() {
   Serial.begin(115200);
   while (!Serial);
 
-  //LoRa.setPins(10, 9, 3);
-
-
   Serial.println("LoRa Receiver");
 
   if (!LoRa.begin(868E6)) {
     Serial.println("Starting LoRa failed!");
     while (1);
   }
+
+  Serial.println("Finished setup successfully");
 }
 
 void loop() {
@@ -69,17 +68,18 @@ void loop() {
   if (packetSize) {
     char packet [packetSize];
     for (int i = 0; i < packetSize; i++) {
-        packet [i] = LoRa.read();
-      }
+      packet [i] = LoRa.read();
+    }
+        
     float value = * (float *) (packet + 1);
     float hash = value /(* packet + 1);
     float check_hash = * (float *) (packet +1 +  sizeof(float));
     
-    if (check_hash != hash)
-        {Serial.print("Check hash failed miserably with: ");
-         Serial.println(value);
-         return;
-        }    
+    if (check_hash != hash) {
+      Serial.print("Check hash failed miserably with: ");
+      Serial.println(value);
+      return;
+    }    
     if (* packet = 0)
         print_value ((DataIndex) packet [0], * (long *) (packet + 1));
     else
