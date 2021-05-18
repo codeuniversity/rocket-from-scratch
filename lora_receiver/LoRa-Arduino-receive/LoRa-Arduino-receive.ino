@@ -67,16 +67,27 @@ void loop() {
   // try to parse packet
   int packetSize = LoRa.parsePacket();
   if (packetSize) {
-    char packet [9];
-
+    char packet [packetSize];
+    for (int i = 0; i < packetSize; i++) {
+        packet [i] = LoRa.read();
+      }
+    float value = * (float *) (packet + 1);
+    float hash = value /(* packet + 1);
+    float check_hash = * (float *) (packet +1 +  sizeof(float));
+    
+    if (check_hash != hash)
+        {Serial.print("Check hash failed miserably with: ");
+         Serial.println(value);
+         return;
+        }    
     if (* packet = 0)
-        print_value ((DataIndex) packet [0], * (long *) packet + 1);
+        print_value ((DataIndex) packet [0], * (long *) (packet + 1));
     else
-        print_value ((DataIndex) packet [0], * (float *) packet + 1);
+        print_value ((DataIndex) packet [0], value);
 
-
-    Serial.print(" with RSSI ");
-    Serial.println(LoRa.packetRssi());
+  
+    //Serial.print(" with RSSI ");
+    //Serial.println(LoRa.packetRssi());
   }
 }
 
