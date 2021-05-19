@@ -36,8 +36,8 @@ void send_value(DataIndex index, float value) {
     float hash = value/(index + 1);
     LoRa.beginPacket();
     LoRa.print((char) index);
-    LoRa.print(value);
-    LoRa.print(hash);
+    LoRa.write((char *) & value, sizeof(float));
+    LoRa.write((char *) & hash, sizeof(float));
     LoRa.endPacket();
 }
 
