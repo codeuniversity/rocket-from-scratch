@@ -150,6 +150,7 @@ void update_sensors() {
   print_data();
 
 
+  // send each sensor reading to ground
   send_value(TIME, datapoint.time);
   send_value(GYRO_X, datapoint.gyro.x);
   send_value(GYRO_Y, datapoint.gyro.y);
