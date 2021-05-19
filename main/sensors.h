@@ -48,10 +48,6 @@ struct Data {
   float estimated_altitude_average;
 } datapoint;
 
-void send_data (Data const & data) {
-    send_data ((unsigned char const *) & data, sizeof (Data));
-}
-
 MPU6050 mpu6050(Wire);
 MS5611 MS5611(0x77);   // 0x76 = CSB to VCC; 0x77 = CSB to GND
 

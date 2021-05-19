@@ -30,13 +30,6 @@ bool setup_comms() {
   return LoRa.begin(FREQUENCY);
 }
 
-// Send a byte array `data` of length `len`
-void send_data(unsigned char const * data, int len) {
-  LoRa.beginPacket();
-  LoRa.write(data, len);
-  LoRa.endPacket();
-}
-
 // Send one float `value` of type `index`
 void send_value(DataIndex index, float value) {
 
