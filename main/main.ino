@@ -23,6 +23,7 @@ void setup()
 {
   Serial.begin(9600);
   pinMode(PB9, OUTPUT);
+  digitalWrite(PB9, HIGH);
 
   if (!setup_sd())
   {
@@ -31,11 +32,18 @@ void setup()
   };
 
   setup_sensors();
-
   if (!setup_comms())
   {
     STATE = State::Error;
     print_log("ERROR! Comms \"Error\"");
+    for (int i = 0; i < 5; i++) {
+      digitalWrite(PB9, HIGH);
+      delay(200);
+      digitalWrite(PB9, LOW);
+      delay(1200);
+    }
+
+  while (STATE == State::Error);
   }
 
 }

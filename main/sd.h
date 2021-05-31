@@ -3,7 +3,7 @@
 #include <SPI.h>
 #include <SD.h>
 
-#define SD_CS_PORT PA4
+#define SD_CS_PORT PB12
 
 /* MACROS */
 #define PRINT_VALUE(value)                       \
@@ -19,11 +19,15 @@
 File LOG_FILE;
 File DATA_FILE;
 
+
+
 // connect to SD and create File-objects
 bool setup_sd() {
   String data_file = "-data.csv";
   String log_file = "-log.txt";
   // TODO: Is this pin correct?
+
+  pinMode(SD_CS_PORT, OUTPUT);
 
   Serial.print("Initializing SD card...");
   if (!SD.begin(SD_CS_PORT)) {

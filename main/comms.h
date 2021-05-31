@@ -5,6 +5,7 @@
 #include <SPI.h>
 #include <LoRa_STM32.h>
 
+#define LORA_CS_PORT PA4
 
 // Index that tells us which sensor reading we're serialising
 enum DataIndex {
@@ -21,10 +22,11 @@ enum DataIndex {
     ESTIMATED_ALTITUDE_AVERAGE
 };
 
-
 bool setup_comms() {
   // uncomment to change ss, reset and dio0 pin, respectively  
-//   LoRa.setPins(10, 9, 2)
+  LoRa.setPins(LORA_CS_PORT, PC13, PA1);
+  return LoRa.begin(FREQUENCY);
+}
 
   // start SPI connection to Lora module
   return LoRa.begin(FREQUENCY);
@@ -37,9 +39,9 @@ void send_value(DataIndex index, float value) {
     float hash = value / (index + 1);
 
     LoRa.beginPacket();
-    LoRa.print((char) index);                       // serialise data index as first byte
-    LoRa.write((char *) & value, sizeof(float));    // serialise value as byte array
-    LoRa.write((char *) & hash, sizeof(float));     // serialise hash as byte array
+    LoRa.write((char) index);
+    LoRa.write((unsigned char *) & value, sizeof(float));
+    LoRa.write((unsigned char *) & hash, sizeof(float));
     LoRa.endPacket();
 }
 // Send one long `value` of type `index`

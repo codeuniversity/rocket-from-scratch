@@ -49,7 +49,11 @@ void loop() {
     float hash = value /(* packet + 1);
 
     // read hash from array and cast it to float
-    float check_hash = * (float *) (packet +1 +  sizeof(float));
+    float check_hash = * (float *) (packet + 1 +  sizeof(float));
+
+    //Serial.print("Index:\t"); Serial.println((int) * packet);
+    //Serial.print("Value:\t"); Serial.println(value);
+    //Serial.print("Hash:\t");  Serial.print  (check_hash); Serial.print(",\tshould be: "); Serial.println(hash);
     
     // check if calculated and retrieved hash match, i.e., if the message was corrupted
     if (check_hash != hash) {
@@ -57,28 +61,12 @@ void loop() {
       Serial.println(value);
       return;
     }
-    if (* packet = 0)
-        // if the value is TIME, cast to long and print
-        print_value (* (long *) (packet + 1));
-    else
-        // else print the value as-is
-        print_value ((DataIndex) packet [0], value);
 
-  
-    // uncomment to print Received Signal Strength Indication
-//    Serial.print(" with RSSI ");
-//    Serial.println(LoRa.packetRssi());
-  }
-}
-
-// print received time
-void print_value (long value) {
-    Serial.print("time\t");
-    Serial.println(value);
-}
-// print value corresponding to index
-void print_value (DataIndex index, float value) {
-    switch (index) {
+    switch (* packet) {
+        case TIME:
+            Serial.print("time\t");
+            Serial.println(* (long *) & value);
+            return;
         case GYRO_X:
             Serial.print("gyro_x\t");
             break;
@@ -114,4 +102,8 @@ void print_value (DataIndex index, float value) {
             return;
     }
     Serial.println(value);
+  
+    //Serial.print(" with RSSI ");
+    //Serial.println(LoRa.packetRssi());
+  }
 }
