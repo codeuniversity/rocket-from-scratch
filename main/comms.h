@@ -28,10 +28,6 @@ bool setup_comms() {
   return LoRa.begin(FREQUENCY);
 }
 
-  // start SPI connection to Lora module
-  return LoRa.begin(FREQUENCY);
-}
-
 // Send one float `value` of type `index`
 void send_value(DataIndex index, float value) {
 
