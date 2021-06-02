@@ -36,14 +36,8 @@ void setup()
   {
     STATE = State::Error;
     print_log("ERROR! Comms \"Error\"");
-    for (int i = 0; i < 5; i++) {
-      digitalWrite(PB9, HIGH);
-      delay(200);
-      digitalWrite(PB9, LOW);
-      delay(1200);
-    }
 
-  while (STATE == State::Error);
+  //while (STATE == State::Error);
   }
 
 }

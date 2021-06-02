@@ -54,12 +54,10 @@ MS5611 MS5611(0x77);   // 0x76 = CSB to VCC; 0x77 = CSB to GND
 void setup_sensors() {
 
   q.push(&in);
-  print_log("MS5611 ");
 
+  print_log("MS5611 ");
   print_log(MS5611.begin() ? "found" : "not found");
-  //testing if the break is in the line above
-  Serial.println("test");
-  print_log("test");
+
   // Configure the mpu6050 here. Look Ch. 6: https://3cfeqx1hf82y3xcoull08ihx-wpengine.netdna-ssl.com/wp-content/uploads/2015/02/MPU-6000-Datasheet1.pdf
   mpu6050.begin(1, 3);
   mpu6050.setAccOffsets(0.05, -0.15, -0.15);
@@ -76,7 +74,7 @@ float calc_height(float temp, float pressure) {
   temp = 5; // Temperature in Berlin
   float calculatedHeight = ((pow((P0 / pressure), (1 / 5.257)) - 1) * (temp + 273.15)) / 0.0065;
 
-  if(firstIteration == true){
+  if(firstIteration){
     heightOffset = calculatedHeight;
     firstIteration = false;
   }
